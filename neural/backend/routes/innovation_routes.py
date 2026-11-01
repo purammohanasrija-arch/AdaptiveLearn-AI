@@ -199,18 +199,19 @@ def compute_learning_twin_metrics(student: User, db: Session) -> Dict[str, Any]:
 
     # Chronological Evolution Stages
     created_date = student.created_at or datetime.now(timezone.utc) - timedelta(days=14)
+    base_score = float(profile.baseline_score) if (profile and profile.baseline_score is not None) else 70.0
     evolution_stages = [
         {
             "stage": "Stage 1: Initial Baseline",
             "date": (created_date).strftime("%Y-%m-%d"),
-            "mastery": round(max(40.0, profile.baseline_score - 15), 1),
+            "mastery": round(max(40.0, base_score - 15), 1),
             "description": "Baseline assessment completed; learning preferences recorded.",
             "status": "completed",
         },
         {
             "stage": "Stage 2: Adaptive Calibration",
             "date": (created_date + timedelta(days=5)).strftime("%Y-%m-%d"),
-            "mastery": round(max(50.0, profile.baseline_score - 5), 1),
+            "mastery": round(max(50.0, base_score - 5), 1),
             "description": "Difficulty levels automatically calibrated via Item Response Theory.",
             "status": "completed",
         },
