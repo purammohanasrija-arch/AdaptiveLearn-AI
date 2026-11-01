@@ -64,22 +64,28 @@ def send_email(to_email: str, subject: str, html_content: str, text_content: Opt
     # Attempt real SMTP if configured
     if cfg["host"] and cfg["user"] and cfg["pass"]:
         try:
-            from_addr = cfg["from"] if cfg["from"] and "@" in cfg["from"] else cfg["user"]
+            # When using Gmail SMTP, the From address MUST match the authenticated Gmail account
+            # to prevent Google DMARC/SPF spoofing filters from blocking delivery or moving to Spam.
+            from_addr = cfg["user"] if "gmail" in cfg["host"].lower() else (cfg["from"] if cfg["from"] and "@" in cfg["from"] else cfg["user"])
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["From"] = f"AdaptiveLearn AI <{from_addr}>"
+            msg["Reply-To"] = from_addr
             msg["To"] = to_email
 
             if text_content:
                 msg.attach(MIMEText(text_content, "plain"))
             msg.attach(MIMEText(html_content, "html"))
 
-            if cfg["port"] == 465:
-                with smtplib.SMTP_SSL(cfg["host"], cfg["port"], timeout=10) as server:
+            # Port 465 uses direct SSL (much faster & reliable for Gmail); Port 587 uses STARTTLS
+            use_ssl = (cfg["port"] == 465) or ("gmail" in cfg["host"].lower())
+            if use_ssl:
+                ssl_port = 465 if "gmail" in cfg["host"].lower() and cfg["port"] == 587 else cfg["port"]
+                with smtplib.SMTP_SSL(cfg["host"], ssl_port, timeout=25) as server:
                     server.login(cfg["user"], cfg["pass"])
                     server.send_message(msg)
             else:
-                with smtplib.SMTP(cfg["host"], cfg["port"], timeout=10) as server:
+                with smtplib.SMTP(cfg["host"], cfg["port"], timeout=25) as server:
                     server.ehlo()
                     server.starttls()
                     server.ehlo()
