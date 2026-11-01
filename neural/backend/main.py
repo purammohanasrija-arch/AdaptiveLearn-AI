@@ -110,13 +110,35 @@ def health_check():
         ],
     }
 
-@app.get("/")
-def root_info():
-    return {
-        "message": "Welcome to AdaptiveLearn AI Backend API",
-        "documentation": "/docs",
-        "health": "/api/health",
-    }
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Mount built frontend if dist directory exists
+FRONTEND_DIST = os.path.join(CURRENT_DIR, "dist")
+if not os.path.exists(FRONTEND_DIST):
+    FRONTEND_DIST = os.path.join(CURRENT_DIR, "..", "frontend", "dist")
+
+if os.path.exists(FRONTEND_DIST):
+    assets_dir = os.path.join(FRONTEND_DIST, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_frontend_spa(full_path: str):
+        if full_path.startswith("api") or full_path in ("docs", "openapi.json", "redoc"):
+            return None
+        file_path = os.path.join(FRONTEND_DIST, full_path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
+else:
+    @app.get("/")
+    def root_info():
+        return {
+            "message": "Welcome to AdaptiveLearn AI Backend API",
+            "documentation": "/docs",
+            "health": "/api/health",
+        }
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
