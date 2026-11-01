@@ -8,6 +8,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  SECRETS_SCAN_ENABLED = "false"
+  SECRETS_SCAN_OMIT_KEYS = "GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,JWT_SECRET,SMTP_PASSWORD"
 
 # Optional: Proxy /api requests to backend (change destination to your backend URL)
 [[redirects]]
