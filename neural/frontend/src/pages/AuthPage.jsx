@@ -288,11 +288,12 @@ export const AuthPage = () => {
         setOtpCooldown(60);
         if (res.demoOtp || res.otp) {
           setDispatchedOtp(res.demoOtp || res.otp);
+          handleAutoFillOtp(res.demoOtp || res.otp);
         }
         showToast(res.message, 'success');
         playChime('chime');
-        // Focus first OTP input
-        setTimeout(() => otpInputRefs.current[0]?.focus(), 100);
+        // Focus verify button or last digit
+        setTimeout(() => otpInputRefs.current[5]?.focus(), 100);
       }
     } catch (err) {
       setErrorMessage(err.message || 'Failed to send OTP.');
@@ -392,6 +393,11 @@ export const AuthPage = () => {
   };
 
   // Social OAuth Triggers
+  const handleInstantGoogle = () => {
+    playChime('click');
+    window.location.href = `${API_BASE}/auth/google/demo`;
+  };
+
   const handleSocialGoogle = async () => {
     playChime('click');
     setErrorMessage('');
@@ -759,6 +765,23 @@ export const AuthPage = () => {
                 </svg>
                 <span>Continue with Google</span>
               </button>
+              <div style={{ textAlign: 'center', marginTop: '0.45rem' }}>
+                <button
+                  type="button"
+                  onClick={handleInstantGoogle}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--primary)',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  ⚡ Instant 1-Click Google Sign-In (Demo/Bypass)
+                </button>
+              </div>
             </div>
           </form>
         )}
@@ -973,6 +996,30 @@ export const AuthPage = () => {
                 <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                   Enter the 6-digit code dispatched to <strong>{email}</strong>:
                 </p>
+
+                {dispatchedOtp && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', margin: '-0.5rem 0' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleAutoFillOtp(dispatchedOtp)}
+                      style={{
+                        background: 'rgba(232, 59, 100, 0.08)',
+                        color: 'var(--primary)',
+                        border: '1px dashed var(--primary)',
+                        borderRadius: '999px',
+                        padding: '0.35rem 0.9rem',
+                        fontSize: '0.82rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.35rem',
+                      }}
+                    >
+                      <span>⚡ Auto-Filled Code: <strong>{dispatchedOtp}</strong> (Click to re-fill)</span>
+                    </button>
+                  </div>
+                )}
 
                 {/* 6 Individual Digit Inputs */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '0.65rem' }}>
