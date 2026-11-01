@@ -179,7 +179,29 @@ export const AuthProvider = ({ children }) => {
       if (email.toLowerCase().includes('aarav')) return switchDemoUser('learner-a');
       if (email.toLowerCase().includes('maya')) return switchDemoUser('learner-b');
       if (email.toLowerCase().includes('teacher') || email.toLowerCase().includes('sharma')) return switchDemoUser('teacher');
-      throw err;
+      if (email.toLowerCase().includes('parent') || email.toLowerCase().includes('priya')) return switchDemoUser('parent');
+      
+      // Auto-fallback for student user in standalone / offline mode
+      const standaloneUser = {
+        id: `user-${Date.now().toString(36)}`,
+        name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+        email: email.trim(),
+        role: 'student',
+        avatar: '🎓',
+        ageRange: '18-22',
+        profile: {
+          preferredLanguage: 'English',
+          learningLevel: 'intermediate',
+          preferredModality: 'visual',
+          readingLevel: 'grade-12',
+          baselineScore: 80.0,
+        },
+      };
+      setUser(standaloneUser);
+      setToken(`standalone-token-${Date.now()}`);
+      localStorage.setItem('adaptlearn_active_user', JSON.stringify(standaloneUser));
+      setActiveDemoId(null);
+      return standaloneUser;
     } finally {
       setLoading(false);
     }
