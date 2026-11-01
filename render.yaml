@@ -17,11 +17,9 @@ services:
         value: 10000
       - key: FRONTEND_URL
         fromService:
-          type: web
+          type: static
           name: adaptivelearn-frontend
           property: host
-      - key: BACKEND_URL
-        sync: false
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
@@ -32,13 +30,11 @@ services:
   # -------------------------------------------------------------
   # FRONTEND SERVICE (React 19 + Vite Static Site)
   # -------------------------------------------------------------
-  - type: web
+  - type: static
     name: adaptivelearn-frontend
-    runtime: static
     rootDir: neural/frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
-    plan: free
     autoDeploy: true
     routes:
       # Single-Page Application (SPA) catch-all rewrite for React Router
@@ -53,4 +49,3 @@ services:
           type: web
           name: adaptivelearn-backend
           property: host
-          path: /api

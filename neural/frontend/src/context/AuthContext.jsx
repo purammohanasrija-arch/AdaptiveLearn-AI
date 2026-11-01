@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+import { API_BASE } from '../services/api';
 
 export const demoProfiles = {
   'learner-a': {

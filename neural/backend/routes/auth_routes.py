@@ -69,8 +69,13 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID", "")
 FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET", "")
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:5000")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").strip()
+if FRONTEND_URL and not FRONTEND_URL.startswith("http"):
+    FRONTEND_URL = f"https://{FRONTEND_URL}"
+
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:5000").strip()
+if BACKEND_URL and not BACKEND_URL.startswith("http"):
+    BACKEND_URL = f"https://{BACKEND_URL}"
 
 # =============================================================================
 # HELPER UTILITIES: HASHING, TOKENS, PASSWORD VALIDATION

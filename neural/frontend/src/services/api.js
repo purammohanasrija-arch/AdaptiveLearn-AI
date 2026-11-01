@@ -1,4 +1,15 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+const rawApiBase = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+export const API_BASE = (() => {
+  let url = (rawApiBase || '').trim();
+  if (!url) return '/api';
+  if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
+    url = `https://${url}`;
+  }
+  if (url.startsWith('http') && !url.endsWith('/api') && !url.endsWith('/api/')) {
+    url = `${url.replace(/\/+$/, '')}/api`;
+  }
+  return url;
+})();
 
 const getHeaders = (token, demoUserId) => {
   const headers = { 'Content-Type': 'application/json' };
