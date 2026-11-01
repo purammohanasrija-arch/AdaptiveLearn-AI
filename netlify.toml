@@ -1,0 +1,31 @@
+# Netlify Configuration for AdaptiveLearn AI Platform
+# Root configuration for continuous deployment from GitHub
+
+[build]
+  base = "neural/frontend"
+  publish = "dist"
+  command = "npm install && npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Optional: Proxy /api requests to backend (change destination to your backend URL)
+[[redirects]]
+  from = "/api/*"
+  to = "https://adaptivelearn-backend.onrender.com/api/:splat"
+  status = 200
+
+# Single-Page Application (SPA) catch-all rewrite for React Router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Production Security Headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
