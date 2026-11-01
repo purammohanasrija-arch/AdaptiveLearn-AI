@@ -1023,8 +1023,6 @@ def send_email_otp(payload: SendOTPRequest, db: Session = Depends(get_db)):
         "success": True,
         "message": f"A 6-digit OTP code has been sent to {email}. Valid for 5 minutes.",
         "expiresInSeconds": 300,
-        "otp": otp_code,
-        "demoOtp": otp_code,
     }
 
 @router.post("/verify-otp")

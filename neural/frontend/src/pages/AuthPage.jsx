@@ -65,17 +65,7 @@ export const AuthPage = () => {
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [otpSent, setOtpSent] = useState(false);
   const [otpCooldown, setOtpCooldown] = useState(0);
-  const [dispatchedOtp, setDispatchedOtp] = useState('');
   const otpInputRefs = useRef([]);
-
-  const handleAutoFillOtp = (code) => {
-    const clean = String(code || '112900').slice(0, 6);
-    const digits = clean.split('');
-    while (digits.length < 6) digits.push('');
-    setOtpDigits(digits);
-    playChime('click');
-    showToast(`Auto-filled code: ${clean}`, 'info');
-  };
 
   // 2FA Challenge State during Login
   const [twoFactorChallenge, setTwoFactorChallenge] = useState(null);
@@ -286,25 +276,13 @@ export const AuthPage = () => {
       if (res.success) {
         setOtpSent(true);
         setOtpCooldown(60);
-        if (res.demoOtp || res.otp) {
-          setDispatchedOtp(res.demoOtp || res.otp);
-          handleAutoFillOtp(res.demoOtp || res.otp);
-        }
+        setOtpDigits(['', '', '', '', '', '']);
         showToast(res.message, 'success');
         playChime('chime');
-        // Focus verify button or last digit
-        setTimeout(() => otpInputRefs.current[5]?.focus(), 100);
+        setTimeout(() => otpInputRefs.current[0]?.focus(), 100);
       }
     } catch (err) {
-      // Standalone Netlify / offline fallback
-      const fallbackCode = String(Math.floor(100000 + Math.random() * 900000));
-      setOtpSent(true);
-      setOtpCooldown(60);
-      setDispatchedOtp(fallbackCode);
-      handleAutoFillOtp(fallbackCode);
-      showToast(`Verification code generated: ${fallbackCode}`, 'info');
-      playChime('chime');
-      setTimeout(() => otpInputRefs.current[5]?.focus(), 100);
+      setErrorMessage(err.message || 'Failed to send OTP.');
     } finally {
       setLoading(false);
     }
@@ -1048,30 +1026,6 @@ export const AuthPage = () => {
                 <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                   Enter the 6-digit code dispatched to <strong>{email}</strong>:
                 </p>
-
-                {dispatchedOtp && (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', margin: '-0.5rem 0' }}>
-                    <button
-                      type="button"
-                      onClick={() => handleAutoFillOtp(dispatchedOtp)}
-                      style={{
-                        background: 'rgba(232, 59, 100, 0.08)',
-                        color: 'var(--primary)',
-                        border: '1px dashed var(--primary)',
-                        borderRadius: '999px',
-                        padding: '0.35rem 0.9rem',
-                        fontSize: '0.82rem',
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.35rem',
-                      }}
-                    >
-                      <span>⚡ Auto-Filled Code: <strong>{dispatchedOtp}</strong> (Click to re-fill)</span>
-                    </button>
-                  </div>
-                )}
 
                 {/* 6 Individual Digit Inputs */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '0.65rem' }}>
