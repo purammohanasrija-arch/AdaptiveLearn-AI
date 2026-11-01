@@ -1,0 +1,23 @@
+{
+  "name": "adaptlearn-ai",
+  "version": "1.0.0",
+  "description": "AdaptLearn AI - Adaptive Learning for Students with Disabilities (HI-03)",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "start:backend": "cd backend && npm start"
+  },
+  "keywords": [
+    "adaptive-learning",
+    "inclusive-education",
+    "accessibility",
+    "wcag",
+    "ai-tutor",
+    "dyslexia",
+    "adhd"
+  ],
+  "author": "Google Antigravity Team",
+  "license": "MIT"
+}

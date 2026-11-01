@@ -1,0 +1,19 @@
+{
+  "name": "adaptlearn-ai-backend",
+  "version": "2.0.0",
+  "description": "AdaptiveLearn AI Python Backend - FastAPI, scikit-learn, NumPy, Pandas, SQLite",
+  "scripts": {
+    "dev": "python main.py",
+    "start": "python main.py",
+    "seed": "python seed.py",
+    "node:dev": "node server.js"
+  },
+  "keywords": [
+    "adaptive-learning",
+    "fastapi",
+    "scikit-learn",
+    "inclusive-education"
+  ],
+  "author": "AdaptiveLearn AI Team",
+  "license": "MIT"
+}

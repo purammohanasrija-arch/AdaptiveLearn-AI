@@ -1,0 +1,1261 @@
+{
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": "Introduction to Computers & How Hardware Works",
+      "subject": "Computer Science",
+      "topic": "Computer Architecture & Hardware",
+      "difficulty": "easy",
+      "estimatedDuration": 15,
+      "icon": "Cpu",
+      "color": "#E11D48",
+      "originalContent": {
+        "summary": "An exploration of modern computer architecture, the central processing unit, volatile memory, persistent storage, and bus communication.",
+        "fullText": "A computer is an electronic device that manipulates information or data according to programmed instructions. At the heart of every modern computing system sits the Central Processing Unit (CPU), which executes arithmetic and logical operations using millions to billions of microscopic semiconductor switches known as transistors. The Von Neumann architecture dictates how the CPU interacts with Primary Storage (Random Access Memory, or RAM) and Secondary Storage (Hard Disk Drives or Solid State Drives). When a program executes, machine instructions are fetched from RAM into CPU registers, decoded by the control unit, and executed by the arithmetic logic unit (ALU). Volatile memory loses state when power ceases, whereas non-volatile secondary storage retains data through magnetic or flash charge trapping mechanisms. Inter-component communication travels across high-speed parallel or serialized data buses regulated by chipset clock frequencies.",
+        "keyTakeaways": [
+          "The CPU is the central brain executing instructions.",
+          "RAM is fast, temporary storage used by active applications.",
+          "Storage drives (SSD/HDD) store files permanently even when powered off.",
+          "Data travels between hardware parts across buses."
+        ]
+      },
+      "adaptedContent": {
+        "simplified": {
+          "summary": "Think of a computer like a master kitchen where different helpers prepare your favorite meal!",
+          "readingLevel": "Accessible (Short sentences, clear definitions)",
+          "sections": [
+            {
+              "heading": "1. The CPU is the Chef 👨‍🍳",
+              "bulletPoints": [
+                "The CPU is the main brain of your computer.",
+                "Just like a head chef reads recipes and cooks food, the CPU reads instructions and does the work.",
+                "It can do billions of small calculations every single second!"
+              ],
+              "vocabulary": [
+                {
+                  "word": "CPU",
+                  "definition": "Central Processing Unit – the brain of the computer that does all calculations."
+                }
+              ]
+            },
+            {
+              "heading": "2. RAM is the Kitchen Countertop 🍳",
+              "bulletPoints": [
+                "RAM holds whatever you are working on right now.",
+                "If you open 10 games or tabs, they sit on your countertop.",
+                "When you turn off the computer, the countertop is wiped completely clean!"
+              ],
+              "vocabulary": [
+                {
+                  "word": "RAM",
+                  "definition": "Short-term memory that is super fast, but resets when turned off."
+                }
+              ]
+            },
+            {
+              "heading": "3. Hard Drive is the Storage Pantry 🥫",
+              "bulletPoints": [
+                "This is where all your games, photos, and files stay forever.",
+                "Even when you turn off the power, your files stay safe and sound in the pantry.",
+                "It is bigger than RAM, but takes a tiny bit longer to fetch things."
+              ],
+              "vocabulary": [
+                {
+                  "word": "Storage (SSD/HDD)",
+                  "definition": "Long-term storage where your files live permanently."
+                }
+              ]
+            }
+          ],
+          "takeaways": [
+            "CPU = The Brain / Chef",
+            "RAM = Fast Table / Countertop",
+            "Storage = Permanent Pantry"
+          ]
+        },
+        "audio": {
+          "script": "Welcome to your learning journey! Today, we are exploring the secret world inside your computer. Imagine you walk into a busy bakery. The head chef in the middle is the CPU. Every time you click a button or type a letter, the chef handles the task immediately. Next, look at the big table in front of the chef. That table is the RAM. It holds all the bowls and spoons the chef is using right this minute. But when the bakery closes at night, the table gets wiped clean. Where do all the ingredients and recipes stay safe? In the pantry cabinets in the back! That pantry is your Solid State Drive, keeping your photos, homework, and favorite songs safe forever. Take a deep breath, and let's review our three helpers: Chef CPU, Countertop RAM, and Pantry Storage.",
+          "pausePoints": [
+            {
+              "timeSec": 5,
+              "label": "Bakery Analogy Intro"
+            },
+            {
+              "timeSec": 20,
+              "label": "Chef CPU"
+            },
+            {
+              "timeSec": 42,
+              "label": "Countertop RAM"
+            },
+            {
+              "timeSec": 65,
+              "label": "Pantry Storage"
+            }
+          ],
+          "speechPacingTips": "Spoken calmly at 0.9x speed with warm reassuring intonation."
+        },
+        "visual": {
+          "conceptCards": [
+            {
+              "title": "CPU: The Central Brain",
+              "description": "Processes instructions, performs arithmetic, and directs all hardware components.",
+              "icon": "Cpu",
+              "diagramType": "Processor Core Flow",
+              "metaphor": "Master Chef reading recipe orders"
+            },
+            {
+              "title": "RAM: Instant Memory",
+              "description": "Ultra-fast temporary memory for currently opened applications. Erased when powered down.",
+              "icon": "Layers",
+              "diagramType": "Countertop Capacity Grid",
+              "metaphor": "Desk workspace where active papers rest"
+            },
+            {
+              "title": "SSD Storage: Permanent Vault",
+              "description": "Long-term non-volatile storage that retains files, operating system, and games safely.",
+              "icon": "HardDrive",
+              "diagramType": "Vault Storage Rack",
+              "metaphor": "Deep library bookshelves storing bound volumes"
+            },
+            {
+              "title": "System Bus: Highway",
+              "description": "High-speed electronic pathways carrying data between CPU, RAM, and graphics.",
+              "icon": "Zap",
+              "diagramType": "Bi-directional Highway",
+              "metaphor": "Conveyor belts carrying items between rooms"
+            }
+          ],
+          "flowchart": [
+            {
+              "step": 1,
+              "action": "User Clicks App",
+              "detail": "Mouse or screen sends electric signal to input controller."
+            },
+            {
+              "step": 2,
+              "action": "Storage to RAM",
+              "detail": "Program files copied from SSD pantry to fast RAM desk."
+            },
+            {
+              "step": 3,
+              "action": "CPU Execution",
+              "detail": "Chef CPU fetches code lines and computes graphics & audio."
+            },
+            {
+              "step": 4,
+              "action": "Display Output",
+              "detail": "Results drawn onto your screen in milliseconds!"
+            }
+          ]
+        },
+        "detailed": {
+          "deepDive": "Modern computing operates on synchronous clock cycles driven by quartz crystal oscillators. When a CPU is rated at 3.5 GHz, it pulses 3.5 billion times per second. Within every cycle, instructions traverse the Fetch-Decode-Execute pipeline. To minimize latency between the nanosecond speeds of the CPU registers and the relatively slower DRAM (Dynamic RAM), chip designers place L1, L2, and L3 SRAM caches directly on the silicon die. Solid-State Drives rely on NAND flash memory cells storing trapped electric charges in floating-gate or charge-trap transistors, eliminating mechanical spinning disk latency.",
+          "historicalContext": "In 1945, mathematician John von Neumann published the 'First Draft of a Report on the EDVAC', formalizing the architecture where programs and data share unified memory, replacing earlier punch-card and hard-wired patch cord setups.",
+          "realWorldApplications": [
+            "Smartphone SoC (System on Chip) integrating CPU, GPU, and Neural Engine in 3nm silicon.",
+            "Autonomous vehicle sensor processing pipelines managing radar and lidar in real-time.",
+            "Medical imaging workstations reconstructing 3D MRI scans in seconds."
+          ],
+          "glossary": [
+            {
+              "term": "Von Neumann Architecture",
+              "definition": "Design blueprint where CPU, storage, and I/O share data pathways."
+            },
+            {
+              "term": "Clock Frequency",
+              "definition": "The rate at which the processor executes cycles, measured in Gigahertz (GHz)."
+            },
+            {
+              "term": "NAND Flash",
+              "definition": "Non-volatile solid-state memory technology that retains data without continuous electrical power."
+            }
+          ]
+        },
+        "practice": {
+          "quickChecks": [
+            {
+              "prompt": "Question 1: You have 15 browser tabs open and a game running. Which hardware component holds their live active state?",
+              "guidance": "Hint: Think about which part acts like the kitchen countertop holding whatever you are touching right now.",
+              "interactiveAnswer": "RAM (Random Access Memory) keeps active programs loaded for quick access."
+            },
+            {
+              "prompt": "Question 2: When you save a photo of your pet, where does it stay permanently?",
+              "guidance": "Hint: Think of the safe pantry that preserves food even when lights are off.",
+              "interactiveAnswer": "Secondary Storage (SSD or Hard Drive) stores files permanently."
+            }
+          ]
+        }
+      },
+      "quiz": [
+        {
+          "id": "q1-1",
+          "question": "Which component is known as the \"brain\" of the computer that does all calculations?",
+          "options": [
+            "Central Processing Unit (CPU)",
+            "Computer Monitor",
+            "Keyboard Cable",
+            "Power Supply Case"
+          ],
+          "correctAnswer": 0,
+          "hint": "It reads instructions and performs calculations, like the head chef in a bakery.",
+          "explanation": "The CPU (Central Processing Unit) acts as the brain, processing commands and running applications.",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q1-2",
+          "question": "What happens to the information stored in RAM when you turn off the computer?",
+          "options": [
+            "It is saved onto a printed paper",
+            "It is erased because RAM is temporary (volatile) memory",
+            "It is sent automatically to the cloud",
+            "It stays frozen exactly as it was forever"
+          ],
+          "correctAnswer": 1,
+          "hint": "RAM is like wiping the kitchen table clean at the end of the day.",
+          "explanation": "RAM is volatile memory; without electric power, its contents are cleared out to make room for fresh data next time.",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q1-3",
+          "question": "Where should you save your homework document so it never disappears when power is cut?",
+          "options": [
+            "In the CPU registers",
+            "In the RAM memory",
+            "In the SSD or Hard Drive storage",
+            "In the mouse sensor"
+          ],
+          "correctAnswer": 2,
+          "hint": "Look for the non-volatile storage pantry that keeps files permanently.",
+          "explanation": "SSDs and Hard Drives are non-volatile permanent storage devices designed to safeguard files.",
+          "difficulty": "medium"
+        },
+        {
+          "id": "q1-4",
+          "question": "Why do computer chips have L1, L2, and L3 caches built directly on the CPU silicon?",
+          "options": [
+            "To make the computer heavier so it does not blow away",
+            "To provide ultra-fast memory closer to the CPU than regular RAM",
+            "To change the computer color based on mood",
+            "To act as backup batteries"
+          ],
+          "correctAnswer": 1,
+          "hint": "Think about how having salt and pepper on the chef apron is faster than walking to the pantry.",
+          "explanation": "On-die CPU caches reduce the latency of fetching instructions compared to traveling across the motherboard to DRAM.",
+          "difficulty": "hard"
+        }
+      ]
+    },
+    {
+      "id": "lesson-2",
+      "title": "Basic Mathematics: Fractions and Visual Ratios",
+      "subject": "Mathematics",
+      "topic": "Fractions & Proportions",
+      "difficulty": "easy",
+      "estimatedDuration": 12,
+      "icon": "PieChart",
+      "color": "#0284C7",
+      "originalContent": {
+        "summary": "A foundational study of rational numbers, fractions as parts of a whole, numerator and denominator semantics, and proportional reasoning.",
+        "fullText": "A fraction represents a numerical value that expresses a part of a whole or a ratio between two quantities. Written mathematically as a/b (where b is non-zero), the bottom number—termed the denominator—specifies the total quantity of equal partitions dividing the unit whole. The upper number—designated the numerator—quantifies how many of those equal partitions are being isolated or enumerated. Fractions can be classified as proper (numerator < denominator), improper (numerator >= denominator), or expressed as mixed numerals. Converting fractions into equivalent representations requires multiplying or dividing both numerator and denominator by an identical non-zero scalar, preserving the underlying proportional invariant.",
+        "keyTakeaways": [
+          "Denominator (bottom) tells how many equal parts make the whole.",
+          "Numerator (top) counts how many parts you currently have.",
+          "Equal fractions represent the exact same amount."
+        ]
+      },
+      "adaptedContent": {
+        "simplified": {
+          "summary": "Imagine sharing a yummy pizza with your friends! Fractions help us share fairly.",
+          "readingLevel": "Accessible (Visual analogies, simple steps)",
+          "sections": [
+            {
+              "heading": "1. What is a Fraction? 🍕",
+              "bulletPoints": [
+                "A fraction is just a piece of something whole.",
+                "If you cut a pizza into 4 slices and eat 1 slice, you ate 1 out of 4 slices!",
+                "We write that as 1/4."
+              ],
+              "vocabulary": [
+                {
+                  "word": "Fraction",
+                  "definition": "Part of a whole object, like 1 slice of a 4-slice pizza."
+                }
+              ]
+            },
+            {
+              "heading": "2. The Bottom Number: Denominator 👇",
+              "bulletPoints": [
+                "The bottom number shows how many EQUAL slices the pizza was cut into.",
+                "Remember: D is for Down (Denominator sits Down below)."
+              ],
+              "vocabulary": [
+                {
+                  "word": "Denominator",
+                  "definition": "The bottom number showing total equal parts."
+                }
+              ]
+            },
+            {
+              "heading": "3. The Top Number: Numerator 👆",
+              "bulletPoints": [
+                "The top number counts how many slices you have on your plate.",
+                "Remember: N is for Number on top."
+              ],
+              "vocabulary": [
+                {
+                  "word": "Numerator",
+                  "definition": "The top number showing how many parts we are counting."
+                }
+              ]
+            }
+          ],
+          "takeaways": [
+            "Top number = parts you have",
+            "Bottom number = total slices cut",
+            "2/4 is the exact same amount of pizza as 1/2!"
+          ]
+        },
+        "audio": {
+          "script": "Hello mathematician! Today we are playing with delicious fractions. Picture a warm, fresh cheese pizza. If you cut it straight down the middle, you have two equal halves. If you take one piece, you are holding 1 out of 2 pieces, written as 1 over 2. The number down at the bottom is the denominator—think of D for Down. It tells you how many slices you made in total. The number at the top is the numerator, which counts how many slices you are holding. What if you cut the pizza into 4 smaller pieces, and took 2 slices? You have 2 out of 4, which is the exact same amount of cheese as half the pizza! Isn't that neat?",
+          "pausePoints": [
+            {
+              "timeSec": 0,
+              "label": "Pizza Intro"
+            },
+            {
+              "timeSec": 25,
+              "label": "Denominator Down"
+            },
+            {
+              "timeSec": 45,
+              "label": "Numerator Top"
+            },
+            {
+              "timeSec": 65,
+              "label": "Equivalent halves"
+            }
+          ],
+          "speechPacingTips": "Friendly, encouraging, clear rhythm."
+        },
+        "visual": {
+          "conceptCards": [
+            {
+              "title": "1 Whole (1/1)",
+              "description": "The entire complete circle, unpartitioned.",
+              "icon": "Circle",
+              "diagramType": "Full Circle Pie (100%)",
+              "metaphor": "Entire pizza before slicing"
+            },
+            {
+              "title": "One Half (1/2)",
+              "description": "Divided into 2 equal parts; 1 part colored.",
+              "icon": "CircleDot",
+              "diagramType": "Semi-Circle Split (50%)",
+              "metaphor": "Sharing equally with your best friend"
+            },
+            {
+              "title": "One Quarter (1/4)",
+              "description": "Divided into 4 equal quarters; 1 slice colored.",
+              "icon": "PieChart",
+              "diagramType": "Quarter Slice Grid (25%)",
+              "metaphor": "One quarter coin out of four in a dollar"
+            },
+            {
+              "title": "Two Quarters = One Half (2/4 = 1/2)",
+              "description": "Two slices out of 4 take up identical space as 1 half.",
+              "icon": "CheckCircle",
+              "diagramType": "Equivalent Overlay Chart",
+              "metaphor": "Two small cookies equal one big cookie"
+            }
+          ],
+          "flowchart": [
+            {
+              "step": 1,
+              "action": "Count Total Parts",
+              "detail": "Count how many equal pieces make up the full object -> write as Denominator (bottom)."
+            },
+            {
+              "step": 2,
+              "action": "Count Colored Parts",
+              "detail": "Count how many pieces are shaded or chosen -> write as Numerator (top)."
+            },
+            {
+              "step": 3,
+              "action": "Write Fraction",
+              "detail": "Put top number over bottom number (e.g. 3/8)."
+            }
+          ]
+        },
+        "detailed": {
+          "deepDive": "Fractions represent elements of the set of rational numbers Q = { a/b | a, b in Z, b != 0 }. In division algebra, a fraction represents the operator a * b^(-1). Equivalence classes of fractions are established under cross-multiplication: a/b == c/d if and only if a*d = b*c. Simplifying to lowest terms utilizes the Euclidean algorithm to find the Greatest Common Divisor (GCD) of numerator and denominator.",
+          "historicalContext": "Ancient Egyptians exclusively used unit fractions (fractions with a numerator of 1, such as 1/2, 1/3, 1/7) in the Rhind Papyrus around 1650 BCE. Modern fractional notation with a horizontal vinculum bar was popularized by Arab mathematician Al-Hassār in the 12th century.",
+          "realWorldApplications": [
+            "Culinary scaling: doubling or halving baking recipes requiring 3/4 cup flour.",
+            "Carpentry & architectural drafting: 1/8 inch scale blueprints.",
+            "Musical time signatures and rhythmic tempo divisions: 4/4 time and quarter notes."
+          ],
+          "glossary": [
+            {
+              "term": "Vinculum",
+              "definition": "The horizontal line dividing numerator and denominator."
+            },
+            {
+              "term": "Proper Fraction",
+              "definition": "A fraction where numerator magnitude is less than denominator."
+            },
+            {
+              "term": "GCD (Greatest Common Divisor)",
+              "definition": "The largest integer that evenly divides both parts of a fraction."
+            }
+          ]
+        },
+        "practice": {
+          "quickChecks": [
+            {
+              "prompt": "Question 1: If a chocolate bar has 8 equal squares and you eat 3 squares, what fraction did you eat?",
+              "guidance": "Put the squares you ate on top, and total squares on the bottom.",
+              "interactiveAnswer": "You ate 3/8 of the chocolate bar."
+            }
+          ]
+        }
+      },
+      "quiz": [
+        {
+          "id": "q2-1",
+          "question": "In the fraction 3/5, what is the number 5 called and what does it tell us?",
+          "options": [
+            "Denominator: It tells the total number of equal parts",
+            "Numerator: It tells how many parts were eaten",
+            "Exponent: It multiplies the number by five",
+            "Factorial: It tells how loud to speak"
+          ],
+          "correctAnswer": 0,
+          "hint": "Remember D is for Down: Denominator is on the bottom and shows total equal parts.",
+          "explanation": "The bottom number is the denominator, showing that the whole has been partitioned into 5 equal parts.",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q2-2",
+          "question": "Which of the following fractions is equivalent to (equal to) 1/2?",
+          "options": [
+            "1/4",
+            "2/4",
+            "3/4",
+            "2/3"
+          ],
+          "correctAnswer": 1,
+          "hint": "If you have a 4-slice pizza, how many slices make half of the pizza?",
+          "explanation": "2/4 simplifies to 1/2 because 2 is half of 4.",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q2-3",
+          "question": "A baker cuts a cake into 12 equal slices. A party eats 9 slices. What fraction in simplest form was eaten?",
+          "options": [
+            "9/12",
+            "3/4",
+            "1/3",
+            "2/3"
+          ],
+          "correctAnswer": 1,
+          "hint": "Divide both 9 and 12 by their greatest common factor (3).",
+          "explanation": "9/12 simplified by dividing numerator and denominator by 3 yields 3/4.",
+          "difficulty": "medium"
+        }
+      ]
+    },
+    {
+      "id": "lesson-3",
+      "title": "Introduction to Programming: Algorithms & Loops",
+      "subject": "Programming",
+      "topic": "Computational Thinking & Control Flow",
+      "difficulty": "medium",
+      "estimatedDuration": 18,
+      "icon": "Code",
+      "color": "#10B981",
+      "originalContent": {
+        "summary": "Principles of algorithmic problem decomposition, sequential instructions, conditional branching, and loop iterations.",
+        "fullText": "An algorithm is a finite, unambiguous sequence of computational instructions designed to transform inputs into desired outputs. High-level programming paradigms structure logic into sequences, selection statements (if-else conditionals), and iterative constructs (loops). A 'while' loop evaluates a Boolean condition prior to each execution cycle, repeatedly triggering the encapsulated block until the predicate terminates as false. A 'for' loop often specifies an index variable, termination bound, and step increment. Unchecked loop predicates can induce non-terminating infinite loops, freezing execution threads and exhausting runtime call stacks or memory heaps.",
+        "keyTakeaways": [
+          "An algorithm is a step-by-step recipe to solve a problem.",
+          "Loops allow computers to repeat actions without rewriting code.",
+          "Conditionals (if-then) let programs make smart decisions."
+        ]
+      },
+      "adaptedContent": {
+        "simplified": {
+          "summary": "Programming is just teaching a computer a recipe so it can help you repeat chores in a flash!",
+          "readingLevel": "Accessible (Daily life routines, bite-sized tasks)",
+          "sections": [
+            {
+              "heading": "1. What is an Algorithm? 📜",
+              "bulletPoints": [
+                "An algorithm is simply a step-by-step list of instructions.",
+                "Think of brushing your teeth: 1) Pick up brush, 2) Put on paste, 3) Brush top, 4) Rinse mouth.",
+                "Computers follow instructions in order, from first to last."
+              ],
+              "vocabulary": [
+                {
+                  "word": "Algorithm",
+                  "definition": "A clear list of steps to solve a problem or finish a task."
+                }
+              ]
+            },
+            {
+              "heading": "2. The Magic of Loops 🔁",
+              "bulletPoints": [
+                "Imagine having to clap your hands 100 times.",
+                "Instead of writing \"clap\" 100 times, a loop says: \"Repeat 100 times: Clap hands!\"",
+                "Loops save energy and help computers do massive tasks in seconds."
+              ],
+              "vocabulary": [
+                {
+                  "word": "Loop",
+                  "definition": "A tool that repeats an action multiple times automatically."
+                }
+              ]
+            },
+            {
+              "heading": "3. Making Decisions with IF 🚦",
+              "bulletPoints": [
+                "IF it is raining outside, THEN take an umbrella.",
+                "ELSE (otherwise), wear sunglasses.",
+                "This is called a Conditional, and it helps apps make choices."
+              ],
+              "vocabulary": [
+                {
+                  "word": "Conditional (If/Else)",
+                  "definition": "Deciding what to do based on whether something is true or false."
+                }
+              ]
+            }
+          ],
+          "takeaways": [
+            "Algorithm = The Recipe",
+            "Loop = The Repeat Button",
+            "Conditional = The Decision Fork"
+          ]
+        },
+        "audio": {
+          "script": "Have you ever taught a friend a new dance move? You tell them step one: slide to the left. Step two: jump forward. That step-by-step instruction sheet is what computer scientists call an algorithm! But what if the dance asks you to jump 10 times in a row? You don't want to shout 'Jump!' ten times. You just say: 'Repeat ten times: jump!'. In programming, that repeat instruction is called a loop. And when the music stops, a conditional check says: IF the song is playing, keep dancing, ELSE take a bow! That is all computer code really is: recipes, repeats, and smart decisions.",
+          "pausePoints": [
+            {
+              "timeSec": 0,
+              "label": "Dance Analogy"
+            },
+            {
+              "timeSec": 30,
+              "label": "Algorithm Definition"
+            },
+            {
+              "timeSec": 50,
+              "label": "Loops"
+            },
+            {
+              "timeSec": 75,
+              "label": "Conditionals"
+            }
+          ],
+          "speechPacingTips": "Upbeat, animated, easy to follow."
+        },
+        "visual": {
+          "conceptCards": [
+            {
+              "title": "Algorithm: Step-by-Step Recipe",
+              "description": "Clear sequence: Input -> Step 1 -> Step 2 -> Output.",
+              "icon": "FileText",
+              "diagramType": "Linear Recipe Flow",
+              "metaphor": "Baking chocolate chip cookies step by step"
+            },
+            {
+              "title": "Loop: Repeat Circle",
+              "description": "Re-runs code until a condition is fulfilled.",
+              "icon": "RotateCw",
+              "diagramType": "Circular Feedback Track",
+              "metaphor": "Running laps around a track until 5 laps are done"
+            },
+            {
+              "title": "If/Else: Traffic Light Fork",
+              "description": "Branches execution based on conditions.",
+              "icon": "GitFork",
+              "diagramType": "Branching Y-Junction",
+              "metaphor": "Green light means go, red light means stop"
+            }
+          ],
+          "flowchart": [
+            {
+              "step": 1,
+              "action": "Start",
+              "detail": "Initialize counter i = 0"
+            },
+            {
+              "step": 2,
+              "action": "Condition Check",
+              "detail": "Is i < 5? (If YES -> Proceed; If NO -> Exit)"
+            },
+            {
+              "step": 3,
+              "action": "Execute Action",
+              "detail": "Print message or move character on screen"
+            },
+            {
+              "step": 4,
+              "action": "Increment",
+              "detail": "Add 1 to counter (i = i + 1) and return to step 2"
+            }
+          ]
+        },
+        "detailed": {
+          "deepDive": "Control flow in modern compiled or interpreted runtimes is orchestrated by assembly-level jump (JMP) and conditional jump (JNE, JE) instructions mapped to CPU flags register. Algorithmic efficiency is measured via asymptotic Big-O notation, characterizing execution runtime T(n) and auxiliary space complexity S(n). A linear search algorithm requires O(n) worst-case time, while binary search algorithms utilizing sorted divides achieve logarithmic O(log n) efficiency.",
+          "historicalContext": "The word 'algorithm' stems from the 9th-century Persian polymath Muhammad ibn Musa al-Khwarizmi. In 1843, Ada Lovelace penned the world's first computer algorithm intended for Charles Babbage's mechanical Analytical Engine to compute Bernoulli numbers.",
+          "realWorldApplications": [
+            "GPS route finding running Dijkstra or A* search algorithms.",
+            "Video streaming compression algorithms (H.264/AV1) packaging video packets in real time.",
+            "Sorting and recommendation feeds in social platforms managing billions of items."
+          ],
+          "glossary": [
+            {
+              "term": "Infinite Loop",
+              "definition": "A loop whose termination condition is never reached, running indefinitely."
+            },
+            {
+              "term": "Recursion",
+              "definition": "A technique where a function calls itself with a smaller subproblem."
+            },
+            {
+              "term": "Time Complexity (Big-O)",
+              "definition": "A mathematical measure describing how runtime scales with input size."
+            }
+          ]
+        },
+        "practice": {
+          "quickChecks": [
+            {
+              "prompt": "Question 1: If a loop starts at count 1 and repeats while count <= 3, how many times will it run?",
+              "guidance": "Count: 1, 2, 3...",
+              "interactiveAnswer": "It will run 3 times (at count = 1, count = 2, and count = 3)."
+            }
+          ]
+        }
+      },
+      "quiz": [
+        {
+          "id": "q3-1",
+          "question": "What is the main purpose of using a loop in a computer program?",
+          "options": [
+            "To repeat an action multiple times without rewriting the same code",
+            "To turn off the computer monitor immediately",
+            "To make the computer mouse cursor spin in circles",
+            "To delete old files automatically"
+          ],
+          "correctAnswer": 0,
+          "hint": "Think about saving time when you need to do something 50 times.",
+          "explanation": "Loops automate repetitive tasks efficiently, avoiding duplicate code and human error.",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q3-2",
+          "question": "What is an algorithm?",
+          "options": [
+            "A physical metal screw inside a laptop",
+            "A clear step-by-step procedure for solving a problem",
+            "A brand of computer speakers",
+            "An internet speed testing website"
+          ],
+          "correctAnswer": 1,
+          "hint": "Like a recipe for baking cookies or brushing teeth.",
+          "explanation": "An algorithm is an ordered sequence of instructions that transforms inputs into outputs.",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q3-3",
+          "question": "What happens if a loop condition is never false (for example: while 1 == 1)?",
+          "options": [
+            "The computer displays a colorful rainbow and finishes instantly",
+            "An infinite loop occurs and keeps running until stopped",
+            "The keyboard automatically types out an essay",
+            "The program speeds up by 500%"
+          ],
+          "correctAnswer": 1,
+          "hint": "If the exit condition never triggers, it never stops repeating.",
+          "explanation": "An infinite loop repeats forever because the stopping condition is never reached.",
+          "difficulty": "medium"
+        }
+      ]
+    },
+    {
+      "id": "lesson-4",
+      "title": "Environmental Science: Photosynthesis and Ecosystems",
+      "subject": "Environmental Science",
+      "topic": "Plant Biology & Energy Cycles",
+      "difficulty": "easy",
+      "estimatedDuration": 14,
+      "icon": "Leaf",
+      "color": "#059669",
+      "originalContent": {
+        "summary": "Biochemical examination of photoautotrophic synthesis, solar energy capture via chlorophyll, the Calvin cycle, and trophic energy flow.",
+        "fullText": "Photosynthesis is the fundamental biochemical process through which photoautotrophs convert radiant electromagnetic solar energy into stable chemical bond energy stored within carbohydrates. Taking place within specialized cellular organelles known as chloroplasts, the reaction relies on chlorophyll pigments to absorb photons predominantly in the blue and red spectral wavelengths while reflecting green light. The overall balanced chemical equation: 6CO2 + 6H2O + Light Energy -> C6H12O6 + 6O2. Through the light-dependent reactions within thylakoid membranes, water photolysis produces molecular oxygen, generating ATP and NADPH. These energy carriers subsequent power the light-independent Calvin cycle in the stroma to fix carbon dioxide into glucose, forming the base of terrestrial and aquatic trophic food pyramids.",
+        "keyTakeaways": [
+          "Plants convert sunlight, water, and carbon dioxide into food (glucose).",
+          "Oxygen is released into the atmosphere as a vital byproduct.",
+          "Photosynthesis underpins nearly all food webs on Earth."
+        ]
+      },
+      "adaptedContent": {
+        "simplified": {
+          "summary": "Plants are Earth's natural solar chefs! They cook their own food using sunlight, water, and fresh air.",
+          "readingLevel": "Accessible (Nature stories, clear plant factory analogy)",
+          "sections": [
+            {
+              "heading": "1. The Solar Factory ☀️🌱",
+              "bulletPoints": [
+                "Unlike humans who buy food at the grocery store, plants make their own food.",
+                "Leaves have tiny green kitchens called Chloroplasts.",
+                "They capture green sunshine power to get to work!"
+              ],
+              "vocabulary": [
+                {
+                  "word": "Photosynthesis",
+                  "definition": "The process where plants use sunlight to make food."
+                },
+                {
+                  "word": "Chlorophyll",
+                  "definition": "The green pigment inside plant leaves that catches sunlight."
+                }
+              ]
+            },
+            {
+              "heading": "2. The 3 Special Ingredients 💧☀️💨",
+              "bulletPoints": [
+                "1) Sunlight: Free energy shining from the sky.",
+                "2) Water: Roots drink it up from the soil like a straw.",
+                "3) Carbon Dioxide: Air that plants breathe in through microscopic leaf pores."
+              ],
+              "vocabulary": [
+                {
+                  "word": "Carbon Dioxide (CO2)",
+                  "definition": "A gas in the air that plants breathe in and humans breathe out."
+                }
+              ]
+            },
+            {
+              "heading": "3. What Comes Out? 🍬🌬️",
+              "bulletPoints": [
+                "Glucose (Plant Sugar): Delicious food that helps the plant grow strong.",
+                "Oxygen: Fresh clean air that humans and animals breathe to live!"
+              ],
+              "vocabulary": [
+                {
+                  "word": "Oxygen",
+                  "definition": "The clean gas made by plants that we need to breathe."
+                }
+              ]
+            }
+          ],
+          "takeaways": [
+            "Ingredients: Sunlight + Water + CO2",
+            "Result: Plant Food (Sugar) + Clean Oxygen for us!"
+          ]
+        },
+        "audio": {
+          "script": "Take a deep, slow breath right now. Feel that cool, clean air filling your lungs? You can thank a leafy green plant for that breath! Every morning when the sun rises, billions of leaves turn toward the sky. They are turning on tiny green solar kitchens called chloroplasts. Through their roots, they sip fresh water from the soil. Through tiny mouth-like pores on their leaves, they breathe in carbon dioxide. Then, using sunlight like a warm stove, they transform water and air into sweet plant sugar. And as a generous gift to the whole planet, they release pure oxygen into the atmosphere for you and me.",
+          "pausePoints": [
+            {
+              "timeSec": 0,
+              "label": "Deep Breath Intro"
+            },
+            {
+              "timeSec": 25,
+              "label": "The Green Kitchen"
+            },
+            {
+              "timeSec": 50,
+              "label": "The Ingredients"
+            },
+            {
+              "timeSec": 75,
+              "label": "The Oxygen Gift"
+            }
+          ],
+          "speechPacingTips": "Calming nature tone, gentle pauses."
+        },
+        "visual": {
+          "conceptCards": [
+            {
+              "title": "Sunlight Energy (Photons)",
+              "description": "Solar energy captured by green chlorophyll pigment.",
+              "icon": "Sun",
+              "diagramType": "Solar Ray Absorption",
+              "metaphor": "Solar panels powering a home"
+            },
+            {
+              "title": "Water (H2O) From Roots",
+              "description": "Absorbed through soil and drawn upward through xylem tubes.",
+              "icon": "Droplet",
+              "diagramType": "Root Capillary Action",
+              "metaphor": "Drinking juice through a drinking straw"
+            },
+            {
+              "title": "Carbon Dioxide (CO2) In",
+              "description": "Absorbed from air through microscopic stoma pores on leaves.",
+              "icon": "Wind",
+              "diagramType": "Leaf Stomata Pore",
+              "metaphor": "Tiny open windows letting fresh breeze in"
+            },
+            {
+              "title": "Oxygen (O2) Released",
+              "description": "Vital atmospheric gas produced as water molecules are split.",
+              "icon": "Heart",
+              "diagramType": "Atmospheric Cycle",
+              "metaphor": "A natural air purifier for the entire world"
+            }
+          ],
+          "flowchart": [
+            {
+              "step": 1,
+              "action": "Inputs Collected",
+              "detail": "Roots absorb H2O, leaves absorb CO2, chlorophyll captures sunlight."
+            },
+            {
+              "step": 2,
+              "action": "Light Reactions",
+              "detail": "Water molecules split, releasing O2 gas into the air."
+            },
+            {
+              "step": 3,
+              "action": "Sugar Created",
+              "detail": "Carbon is fixed into sweet glucose sugar to feed the plant."
+            }
+          ]
+        },
+        "detailed": {
+          "deepDive": "The photolysis of water occurs inside the oxygen-evolving complex of Photosystem II (P680 reaction center). Absorbed photon energy excites electrons, transferring them down an electron transport chain featuring Plastoquinone, Cytochrome b6f, and Plastocyanin to Photosystem I (P700). This proton gradient across the thylakoid membrane drives ATP synthase via chemiosmosis. In the Calvin-Benson-Bassham cycle, the enzyme RuBisCO (ribulose-1,5-bisphosphate carboxylase-oxygenase) catalyzes carbon fixation.",
+          "historicalContext": "In 1779, Dutch physician and scientist Jan Ingenhousz discovered that plants in sunlight produce oxygen bubbles under water, but in darkness produce carbon dioxide, proving that sunlight is essential to photosynthesis.",
+          "realWorldApplications": [
+            "Agricultural crop yield modeling utilizing satellite NDVI spectral reflectance indices.",
+            "Artificial photosynthesis research developing biomimetic solar catalysts for hydrogen fuel.",
+            "Urban forestry and carbon sequestration initiatives calculating tree canopy oxygen production."
+          ],
+          "glossary": [
+            {
+              "term": "RuBisCO",
+              "definition": "The primary carbon-fixing enzyme, considered the most abundant protein on Earth."
+            },
+            {
+              "term": "Thylakoid",
+              "definition": "Flattened sac membranes inside chloroplasts where light-dependent reactions occur."
+            },
+            {
+              "term": "Stomata",
+              "definition": "Specialized microscopic pores regulated by guard cells for gas exchange."
+            }
+          ]
+        },
+        "practice": {
+          "quickChecks": [
+            {
+              "prompt": "Question 1: Which gas do plants absorb from the air to make food, and which gas do they give off for us to breathe?",
+              "guidance": "Think about what we breathe out vs what we breathe in.",
+              "interactiveAnswer": "Plants absorb Carbon Dioxide (CO2) and release Oxygen (O2)."
+            }
+          ]
+        }
+      },
+      "quiz": [
+        {
+          "id": "q4-1",
+          "question": "What are the three main ingredients plants need to perform photosynthesis?",
+          "options": [
+            "Sunlight, Water, and Carbon Dioxide",
+            "Milk, Bread, and Cheese",
+            "Cold ice, Salt, and Electricity",
+            "Wind, Plastic, and Rocks"
+          ],
+          "correctAnswer": 0,
+          "hint": "Think of sunshine from above, water from roots, and air breathed into leaves.",
+          "explanation": "Sunlight provides energy, water provides electrons/hydrogen, and carbon dioxide provides carbon for glucose.",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q4-2",
+          "question": "What is the green pigment in plant leaves that captures sunlight energy?",
+          "options": [
+            "Chlorophyll",
+            "Melanin",
+            "Hemoglobin",
+            "Carotene"
+          ],
+          "correctAnswer": 0,
+          "hint": "It starts with \"Chloro\" and makes leaves look vibrant green.",
+          "explanation": "Chlorophyll is the photoreceptor pigment that absorbs blue and red wavelengths of light.",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q4-3",
+          "question": "Which beneficial gas is released into the atmosphere as a byproduct of photosynthesis?",
+          "options": [
+            "Oxygen",
+            "Methane",
+            "Helium",
+            "Argon"
+          ],
+          "correctAnswer": 0,
+          "hint": "It is the gas all animals and humans need to breathe.",
+          "explanation": "Water molecules split during photosynthesis, releasing breathable oxygen into the air.",
+          "difficulty": "medium"
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "user-student-a",
+      "name": "Aarav Patel",
+      "email": "aarav@student.adaptlearn.ai",
+      "passwordHash": "$2a$10$demoHashForAaravStudentAdaptLearn2026",
+      "role": "student",
+      "avatar": "👦🏽",
+      "ageRange": "13-15",
+      "profile": {
+        "preferredLanguage": "English",
+        "learningLevel": "beginner",
+        "preferredFormat": "simplified",
+        "textSize": "large",
+        "speechRate": 0.85,
+        "explanationStyle": "simple",
+        "quizDifficulty": "easy",
+        "readingSpeed": "slow",
+        "accessibilityPreferences": {
+          "dyslexicFont": true,
+          "highContrast": false,
+          "reducedMotion": true,
+          "lineSpacing": "relaxed",
+          "audioNarration": true,
+          "visualDiagrams": true,
+          "screenReaderOptimized": false
+        },
+        "disabilityContext": "Learner A: Reading difficulty & ADHD (benefits from simplified chunks, large text, audio read-aloud)",
+        "baselineScore": 68,
+        "streakDays": 4,
+        "dailyGoalMinutes": 20,
+        "todayMinutesSpent": 16
+      },
+      "progress": [
+        {
+          "lessonId": "lesson-1",
+          "completionPercentage": 100,
+          "masteryScore": 88,
+          "status": "completed",
+          "timeSpentMinutes": 18,
+          "lastAccessedFormat": "simplified",
+          "bookmarks": [
+            {
+              "sectionId": "sec-chef",
+              "title": "The CPU is the Chef"
+            }
+          ],
+          "notes": [
+            {
+              "id": "note-1",
+              "text": "Remember: RAM is like the countertop!"
+            }
+          ]
+        },
+        {
+          "lessonId": "lesson-2",
+          "completionPercentage": 80,
+          "masteryScore": 78,
+          "status": "in_progress",
+          "timeSpentMinutes": 14,
+          "lastAccessedFormat": "audio",
+          "bookmarks": [
+            {
+              "sectionId": "sec-pizza",
+              "title": "Pizza Fractions"
+            }
+          ],
+          "notes": [
+            {
+              "id": "note-2",
+              "text": "D for Down = Denominator"
+            }
+          ]
+        },
+        {
+          "lessonId": "lesson-3",
+          "completionPercentage": 45,
+          "masteryScore": 62,
+          "status": "in_progress",
+          "timeSpentMinutes": 9,
+          "lastAccessedFormat": "visual",
+          "bookmarks": [],
+          "notes": []
+        },
+        {
+          "lessonId": "lesson-4",
+          "completionPercentage": 0,
+          "masteryScore": 0,
+          "status": "not_started",
+          "timeSpentMinutes": 0,
+          "lastAccessedFormat": "simplified",
+          "bookmarks": [],
+          "notes": []
+        }
+      ],
+      "quizAttempts": [
+        {
+          "id": "qa-1",
+          "lessonId": "lesson-1",
+          "score": 85,
+          "accuracy": 0.85,
+          "totalQuestions": 4,
+          "timeSpentSeconds": 110,
+          "attemptedAt": "2026-10-29T14:03:05.943Z"
+        },
+        {
+          "id": "qa-2",
+          "lessonId": "lesson-2",
+          "score": 75,
+          "accuracy": 0.75,
+          "totalQuestions": 3,
+          "timeSpentSeconds": 95,
+          "attemptedAt": "2026-10-30T14:03:05.945Z"
+        }
+      ]
+    },
+    {
+      "id": "user-student-b",
+      "name": "Maya Lin",
+      "email": "maya@student.adaptlearn.ai",
+      "passwordHash": "$2a$10$demoHashForMayaStudentAdaptLearn2026",
+      "role": "student",
+      "avatar": "👧🏻",
+      "ageRange": "15-17",
+      "profile": {
+        "preferredLanguage": "English",
+        "learningLevel": "intermediate",
+        "preferredFormat": "visual",
+        "textSize": "normal",
+        "speechRate": 1,
+        "explanationStyle": "detailed",
+        "quizDifficulty": "hard",
+        "readingSpeed": "fast",
+        "accessibilityPreferences": {
+          "dyslexicFont": false,
+          "highContrast": true,
+          "reducedMotion": false,
+          "lineSpacing": "normal",
+          "audioNarration": false,
+          "visualDiagrams": true,
+          "screenReaderOptimized": false
+        },
+        "disabilityContext": "Learner B: Hearing impairment (prefers high visual cues, rich diagrams, detailed explanations, standard text)",
+        "baselineScore": 84,
+        "streakDays": 7,
+        "dailyGoalMinutes": 30,
+        "todayMinutesSpent": 28
+      },
+      "progress": [
+        {
+          "lessonId": "lesson-1",
+          "completionPercentage": 100,
+          "masteryScore": 94,
+          "status": "completed",
+          "timeSpentMinutes": 22,
+          "lastAccessedFormat": "detailed",
+          "bookmarks": [
+            {
+              "sectionId": "sec-arch",
+              "title": "Von Neumann Architecture"
+            }
+          ],
+          "notes": [
+            {
+              "id": "note-b1",
+              "text": "L1/L2 caches sit directly on silicon die."
+            }
+          ]
+        },
+        {
+          "lessonId": "lesson-2",
+          "completionPercentage": 100,
+          "masteryScore": 92,
+          "status": "completed",
+          "timeSpentMinutes": 19,
+          "lastAccessedFormat": "visual",
+          "bookmarks": [],
+          "notes": []
+        },
+        {
+          "lessonId": "lesson-3",
+          "completionPercentage": 85,
+          "masteryScore": 86,
+          "status": "in_progress",
+          "timeSpentMinutes": 20,
+          "lastAccessedFormat": "detailed",
+          "bookmarks": [
+            {
+              "sectionId": "sec-bigo",
+              "title": "Big-O Complexity"
+            }
+          ],
+          "notes": [
+            {
+              "id": "note-b2",
+              "text": "Binary search is O(log n)."
+            }
+          ]
+        },
+        {
+          "lessonId": "lesson-4",
+          "completionPercentage": 60,
+          "masteryScore": 80,
+          "status": "in_progress",
+          "timeSpentMinutes": 15,
+          "lastAccessedFormat": "visual",
+          "bookmarks": [],
+          "notes": []
+        }
+      ],
+      "quizAttempts": [
+        {
+          "id": "qa-b1",
+          "lessonId": "lesson-1",
+          "score": 95,
+          "accuracy": 0.95,
+          "totalQuestions": 4,
+          "timeSpentSeconds": 90,
+          "attemptedAt": "2026-10-28T14:03:05.945Z"
+        },
+        {
+          "id": "qa-b2",
+          "lessonId": "lesson-2",
+          "score": 90,
+          "accuracy": 0.9,
+          "totalQuestions": 3,
+          "timeSpentSeconds": 80,
+          "attemptedAt": "2026-10-29T14:03:05.945Z"
+        },
+        {
+          "id": "qa-b3",
+          "lessonId": "lesson-3",
+          "score": 88,
+          "accuracy": 0.88,
+          "totalQuestions": 3,
+          "timeSpentSeconds": 105,
+          "attemptedAt": "2026-10-30T14:03:05.945Z"
+        }
+      ]
+    },
+    {
+      "id": "user-student-c",
+      "name": "Carlos Mendez",
+      "email": "carlos@student.adaptlearn.ai",
+      "passwordHash": "$2a$10$demoHashForCarlosStudentAdaptLearn2026",
+      "role": "student",
+      "avatar": "🧑🏽",
+      "ageRange": "14-16",
+      "profile": {
+        "preferredLanguage": "Spanish",
+        "learningLevel": "beginner",
+        "preferredFormat": "audio",
+        "textSize": "medium",
+        "speechRate": 0.9,
+        "explanationStyle": "simple",
+        "quizDifficulty": "easy",
+        "readingSpeed": "moderate",
+        "accessibilityPreferences": {
+          "dyslexicFont": false,
+          "highContrast": false,
+          "reducedMotion": true,
+          "lineSpacing": "relaxed",
+          "audioNarration": true,
+          "visualDiagrams": true,
+          "screenReaderOptimized": true
+        },
+        "disabilityContext": "Visual impairment (screen reader user, audio narration preferred)",
+        "baselineScore": 72,
+        "streakDays": 3,
+        "dailyGoalMinutes": 25,
+        "todayMinutesSpent": 12
+      },
+      "progress": [
+        {
+          "lessonId": "lesson-1",
+          "completionPercentage": 70,
+          "masteryScore": 74,
+          "status": "in_progress",
+          "timeSpentMinutes": 16,
+          "lastAccessedFormat": "audio",
+          "bookmarks": [],
+          "notes": []
+        },
+        {
+          "lessonId": "lesson-4",
+          "completionPercentage": 40,
+          "masteryScore": 65,
+          "status": "in_progress",
+          "timeSpentMinutes": 10,
+          "lastAccessedFormat": "audio",
+          "bookmarks": [],
+          "notes": []
+        }
+      ],
+      "quizAttempts": [
+        {
+          "id": "qa-c1",
+          "lessonId": "lesson-1",
+          "score": 75,
+          "accuracy": 0.75,
+          "totalQuestions": 4,
+          "timeSpentSeconds": 130,
+          "attemptedAt": "2026-10-30T14:03:05.945Z"
+        }
+      ]
+    },
+    {
+      "id": "user-teacher-1",
+      "name": "Dr. Elena Sharma",
+      "email": "teacher@adaptlearn.ai",
+      "passwordHash": "$2a$10$demoHashForElenaTeacherAdaptLearn2026",
+      "role": "teacher",
+      "avatar": "👩🏻‍🏫",
+      "profile": {
+        "department": "Special Education & Adaptive Curriculum",
+        "institution": "Inclusive Academy of Learning"
+      }
+    }
+  ],
+  "assignments": [
+    {
+      "id": "assign-1",
+      "teacherId": "user-teacher-1",
+      "studentIds": [
+        "user-student-a",
+        "user-student-b",
+        "user-student-c"
+      ],
+      "lessonId": "lesson-1",
+      "title": "Computer Hardware Core Concepts",
+      "instructions": "Explore the lesson using your preferred format and complete the knowledge check quiz.",
+      "recommendedFormat": "simplified",
+      "dueDate": "2026-11-03T14:03:05.945Z",
+      "status": "active"
+    },
+    {
+      "id": "assign-2",
+      "teacherId": "user-teacher-1",
+      "studentIds": [
+        "user-student-a",
+        "user-student-b"
+      ],
+      "lessonId": "lesson-3",
+      "title": "Algorithms & Repeat Loops Exercise",
+      "instructions": "Trace the repeat loop flowchart and complete the practice questions.",
+      "recommendedFormat": "visual",
+      "dueDate": "2026-11-05T14:03:05.945Z",
+      "status": "active"
+    }
+  ]
+}

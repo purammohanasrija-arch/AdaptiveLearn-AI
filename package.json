@@ -1,0 +1,24 @@
+{
+  "name": "adaptive-learn-ai-workspace",
+  "version": "2.0.0",
+  "description": "AdaptiveLearn AI – Personalized Learning for Everyone (HI-03)",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd neural/backend && python main.py",
+    "dev:frontend": "cd neural/frontend && npm run dev",
+    "dev": "npm run dev:frontend",
+    "build:frontend": "cd neural/frontend && npm run build",
+    "test:ai": "cd neural/backend && python test_simple.py"
+  },
+  "keywords": [
+    "adaptive-learning",
+    "inclusive-education",
+    "accessibility",
+    "wcag",
+    "fastapi",
+    "scikit-learn"
+  ],
+  "author": "AdaptiveLearn AI Team",
+  "license": "MIT"
+}
+
