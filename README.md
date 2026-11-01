@@ -6,6 +6,33 @@
 [![ML: scikit--learn + NumPy + Pandas](https://img.shields.io/badge/AI%2FML-scikit--learn%20%2B%20BKT%20%2B%20IRT-F7931E?style=for-the-badge&logo=scikit-learn)](https://scikit-learn.org/)
 [![Database: SQLite + SQLAlchemy](https://img.shields.io/badge/Database-SQLite%20%2B%20SQLAlchemy-003B57?style=for-the-badge&logo=sqlite)](https://sqlite.org)
 [![Frontend: React + Vite + Recharts](https://img.shields.io/badge/Frontend-React%20%2B%20Vite%20%2B%20Recharts-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
+[![Academic Project Report](https://img.shields.io/badge/Documentation-22--Section%20Report-purple?style=for-the-badge&logo=googledocs)](./PROJECT_REPORT.md)
+
+> 📑 **Full Technical Project Report**: An exhaustive 22-section academic & engineering report containing the Certificate of Originality, Abstract, Mathematical Formulations (BKT, IRT, Ebbinghaus), System Architecture, ER Diagrams, and Test Matrices is available in [**PROJECT_REPORT.md**](./PROJECT_REPORT.md).
+
+### 📑 Table of Contents (Project Report)
+1. [Cover Page](./PROJECT_REPORT.md#1-cover-page)
+2. [Certificate and Declaration](./PROJECT_REPORT.md#2-certificate-and-declaration)
+3. [Acknowledgement](./PROJECT_REPORT.md#3-acknowledgement)
+4. [Abstract](./PROJECT_REPORT.md#4-abstract)
+5. [Introduction](./PROJECT_REPORT.md#5-introduction)
+6. [Problem Statement](./PROJECT_REPORT.md#6-problem-statement)
+7. [Existing System and Its Limitations](./PROJECT_REPORT.md#7-existing-system-and-its-limitations)
+8. [Research Gap](./PROJECT_REPORT.md#8-research-gap)
+9. [Objectives](./PROJECT_REPORT.md#9-objectives)
+10. [Proposed System](./PROJECT_REPORT.md#10-proposed-system)
+11. [System Architecture and Block Diagram](./PROJECT_REPORT.md#11-system-architecture-and-block-diagram)
+12. [Hardware and Software Requirements](./PROJECT_REPORT.md#12-hardware-and-software-requirements)
+13. [Methodology and Workflow](./PROJECT_REPORT.md#13-methodology-and-workflow)
+14. [Module Descriptions](./PROJECT_REPORT.md#14-module-descriptions)
+15. [Database Design and ER Diagram](./PROJECT_REPORT.md#15-database-design-and-er-diagram)
+16. [Implementation and Code Explanation](./PROJECT_REPORT.md#16-implementation-and-code-explanation)
+17. [Results and Screenshots](./PROJECT_REPORT.md#17-results-and-screenshots)
+18. [Testing and Test Cases](./PROJECT_REPORT.md#18-testing-and-test-cases)
+19. [Advantages and Applications](./PROJECT_REPORT.md#19-advantages-and-applications)
+20. [Limitations and Future Scope](./PROJECT_REPORT.md#20-limitations-and-future-scope)
+21. [Conclusion](./PROJECT_REPORT.md#21-conclusion)
+22. [References](./PROJECT_REPORT.md#22-references)
 
 ---
 
