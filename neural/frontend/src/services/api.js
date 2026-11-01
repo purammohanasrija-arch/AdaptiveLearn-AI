@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 
 const getHeaders = (token, demoUserId) => {
   const headers = { 'Content-Type': 'application/json' };

@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./neural/backend
+      dockerfile: Dockerfile
+    container_name: adaptivelearn_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - FRONTEND_URL=http://localhost:3000
+      - BACKEND_URL=http://localhost:5000
+      - JWT_SECRET_KEY=adaptive_learn_production_secret_key_change_in_production_min_32_chars
+    volumes:
+      - ./neural/backend/adaptive_learn.db:/app/adaptive_learn.db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./neural/frontend
+      dockerfile: Dockerfile
+    container_name: adaptivelearn_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

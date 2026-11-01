@@ -1,0 +1,56 @@
+services:
+  # -------------------------------------------------------------
+  # BACKEND SERVICE (FastAPI + Uvicorn + scikit-learn + SQLite)
+  # -------------------------------------------------------------
+  - type: web
+    name: adaptivelearn-backend
+    runtime: python
+    rootDir: neural/backend
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: adaptivelearn-frontend
+          property: host
+      - key: BACKEND_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 120
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: 30
+
+  # -------------------------------------------------------------
+  # FRONTEND SERVICE (React 19 + Vite Static Site)
+  # -------------------------------------------------------------
+  - type: web
+    name: adaptivelearn-frontend
+    runtime: static
+    rootDir: neural/frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    plan: free
+    autoDeploy: true
+    routes:
+      # Single-Page Application (SPA) catch-all rewrite for React Router
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.0
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: adaptivelearn-backend
+          property: host
+          path: /api

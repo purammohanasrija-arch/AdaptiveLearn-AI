@@ -25,6 +25,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+
 export const VoiceVideoAssistant = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -233,7 +235,7 @@ export const VoiceVideoAssistant = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/ai/chat', {
+      const response = await fetch(`${API_BASE}/ai/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
