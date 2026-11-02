@@ -72,6 +72,8 @@ def send_email(to_email: str, subject: str, html_content: str, text_content: Opt
             msg["From"] = f"AdaptiveLearn AI <{from_addr}>"
             msg["Reply-To"] = from_addr
             msg["To"] = to_email
+            msg["Auto-Submitted"] = "auto-generated"
+            msg["X-Auto-Response-Suppress"] = "All"
 
             if text_content:
                 msg.attach(MIMEText(text_content, "plain"))
@@ -158,7 +160,13 @@ def send_verification_email(to_email: str, user_name: str, verification_url: str
 # 3. OTP Verification
 # -----------------------------------------------------------------------------
 def send_otp_email(to_email: str, user_name: str, otp_code: str, purpose: str = "login") -> bool:
-    subject = f"Your AdaptiveLearn AI Verification Code: {otp_code}"
+    subject = f"{otp_code} is your AdaptiveLearn AI verification code"
+    text_content = (
+        f"Hello {user_name},\n\n"
+        f"Your 6-digit verification code is: {otp_code}\n\n"
+        f"This code is valid for 5 minutes. Never share this code with anyone.\n\n"
+        f"— AdaptiveLearn AI Team"
+    )
     html = f"""
     <!DOCTYPE html>
     <html><head><style>{BASE_CSS}</style></head><body>
@@ -178,7 +186,7 @@ def send_otp_email(to_email: str, user_name: str, otp_code: str, purpose: str = 
       </div>
     </body></html>
     """
-    return send_email(to_email, subject, html)
+    return send_email(to_email, subject, html, text_content=text_content)
 
 # -----------------------------------------------------------------------------
 # 4. Password Reset
