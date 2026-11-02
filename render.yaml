@@ -4,7 +4,7 @@ services:
   # Multi-stage Docker build: Frontend SPA + Backend Python Engine
   # =============================================================
   - type: web
-    name: adaptivelearn-ai
+    name: adaptivelearn-ai-1
     runtime: docker
     dockerfilePath: ./Dockerfile
     plan: free
@@ -18,7 +18,17 @@ services:
         value: 120
       - key: REFRESH_TOKEN_EXPIRE_DAYS
         value: 30
-      - key: GOOGLE_CLIENT_ID
-        sync: false
-      - key: GOOGLE_CLIENT_SECRET
-        sync: false
+      - key: BACKEND_URL
+        value: https://adaptivelearn-ai-1.onrender.com
+      - key: FRONTEND_URL
+        value: https://adaptivelearn-ai-1.onrender.com
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 465
+      - key: SMTP_USERNAME
+        value: pmsrija21@gmail.com
+      - key: SMTP_PASSWORD
+        value: dkqz tfqt bvni ypkf
+      - key: SMTP_FROM_EMAIL
+        value: support@adaptlearn.ai
