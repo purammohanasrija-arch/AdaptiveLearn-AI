@@ -50,3 +50,4 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 .pytest_cache/
+VIGNAN_PROJECT_RECORD.md

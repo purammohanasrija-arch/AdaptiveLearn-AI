@@ -400,27 +400,30 @@ export const AuthPage = () => {
   // Social OAuth Triggers
   const handleInstantGoogle = () => {
     playChime('click');
-    if (window.location.hostname.includes('netlify.app') || !window.location.port) {
-      const googleUser = {
-        id: 'user-google-scholar',
-        name: 'Srija (Google Scholar)',
-        email: 'purammohanasrija@gmail.com',
-        role: 'student',
-        avatar: '🎓',
-        profile: {
-          preferredLanguage: 'English',
-          learningLevel: 'advanced',
-          preferredModality: 'visual',
-          readingLevel: 'grade-12',
-          baselineScore: 90.0,
-        },
-      };
-      setSessionAuth(googleUser, `google-token-${Date.now()}`);
-      playChime('celebration');
-      showToast('Signed in with Google!', 'success');
-      navigate('/dashboard');
-    } else {
-      window.location.href = `${API_BASE}/auth/google/demo`;
+    const googleUser = {
+      id: 'user-google-scholar',
+      name: 'Srija (Google Scholar)',
+      email: 'purammohanasrija@gmail.com',
+      role: 'student',
+      avatar: '🎓',
+      profile: {
+        preferredLanguage: 'English',
+        learningLevel: 'advanced',
+        preferredModality: 'visual',
+        readingLevel: 'grade-12',
+        baselineScore: 90.0,
+      },
+    };
+    setSessionAuth(googleUser, `google-token-${Date.now()}`);
+    playChime('celebration');
+    showToast('Signed in with Google!', 'success');
+    navigate('/dashboard');
+
+    // Fire and forget backend session synchronization if backend is reachable
+    try {
+      fetch(`${API_BASE}/auth/google/demo`, { method: 'GET' }).catch(() => {});
+    } catch (e) {
+      // Ignored
     }
   };
 
@@ -433,12 +436,13 @@ export const AuthPage = () => {
     }
     try {
       const res = await api.authGoogle();
-      if (res.authUrl) {
+      if (res && res.authUrl && res.authUrl.includes('accounts.google.com')) {
         window.location.href = res.authUrl;
       } else {
         handleInstantGoogle();
       }
     } catch (err) {
+      console.warn('Google OAuth initiation failed or backend offline, falling back:', err);
       handleInstantGoogle();
     }
   };

@@ -592,16 +592,22 @@ def get_current_user_profile(
 # 6. GOOGLE OAUTH 2.0 (GET /google & GET /google/callback)
 # =============================================================================
 @router.get("/google")
-def google_oauth_initiate(mode: Optional[str] = Query(None)):
+def google_oauth_initiate(request: Request, mode: Optional[str] = Query(None)):
     client_id = os.getenv("GOOGLE_CLIENT_ID", "").strip()
-    redirect_uri = f"{BACKEND_URL}/api/auth/google/callback"
+    backend_base = os.getenv("BACKEND_URL", "").strip()
+    if not backend_base:
+        backend_base = str(request.base_url).rstrip("/")
+    if backend_base and not backend_base.startswith("http"):
+        backend_base = f"https://{backend_base}"
+
+    redirect_uri = f"{backend_base}/api/auth/google/callback"
     if mode == "demo" or not client_id:
         # Instant zero-friction Google demo single sign-on
         return {
             "success": True,
             "configured": True,
             "demoMode": True,
-            "authUrl": f"{BACKEND_URL}/api/auth/google/demo",
+            "authUrl": f"{backend_base}/api/auth/google/demo",
             "message": "Continuing with Google Single Sign-On.",
         }
 
@@ -661,29 +667,41 @@ def google_oauth_demo(request: Request, db: Session = Depends(get_db)):
         id=f"sess-{uuid.uuid4().hex[:8]}",
         user_id=user.id,
         refresh_token_hash=sha256_hash(raw_refresh),
-        ip_address=request.client.host if request.client else "127.0.0.1",
-        user_agent=request.headers.get("user-agent", "Web Browser")[:500],
+        ip_address=request.client.host if (request and getattr(request, 'client', None)) else "127.0.0.1",
+        user_agent=request.headers.get("user-agent", "Web Browser")[:500] if (request and hasattr(request, 'headers')) else "Web Browser",
         device_name="Google Single Sign-On (Demo)",
         expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
     )
     db.add(user_session)
     db.commit()
 
-    log_security_event(db, "OAUTH_LOGIN", user_id=user.id, ip_address=request.client.host if request.client else "127.0.0.1", details={"provider": "google", "mode": "demo"})
-    return Response(status_code=302, headers={"Location": f"{FRONTEND_URL}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
+    frontend_base = os.getenv("FRONTEND_URL", "").strip()
+    if not frontend_base:
+        frontend_base = str(request.base_url).rstrip("/")
+    if frontend_base and not frontend_base.startswith("http"):
+        frontend_base = f"https://{frontend_base}"
+
+    log_security_event(db, "OAUTH_LOGIN", user_id=user.id, ip_address=request.client.host if (request and getattr(request, 'client', None)) else "127.0.0.1", details={"provider": "google", "mode": "demo"})
+    return Response(status_code=302, headers={"Location": f"{frontend_base}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
 
 @router.get("/google/callback")
 def google_oauth_callback(
+    request: Request,
     code: Optional[str] = Query(None),
     error: Optional[str] = Query(None),
-    request: Request = None,
     db: Session = Depends(get_db),
 ):
     if error or not code:
         # Automatic graceful fallback to demo Google SSO if OAuth was cancelled or misconfigured
         return google_oauth_demo(request, db)
 
-    redirect_uri = f"{BACKEND_URL}/api/auth/google/callback"
+    backend_base = os.getenv("BACKEND_URL", "").strip()
+    if not backend_base:
+        backend_base = str(request.base_url).rstrip("/")
+    if backend_base and not backend_base.startswith("http"):
+        backend_base = f"https://{backend_base}"
+
+    redirect_uri = f"{backend_base}/api/auth/google/callback"
     client_id = os.getenv("GOOGLE_CLIENT_ID", "").strip()
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET", "").strip()
     try:
@@ -764,7 +782,13 @@ def google_oauth_callback(
         db.add(user_session)
         db.commit()
 
-        return Response(status_code=302, headers={"Location": f"{FRONTEND_URL}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
+        frontend_base = os.getenv("FRONTEND_URL", "").strip()
+        if not frontend_base:
+            frontend_base = str(request.base_url).rstrip("/")
+        if frontend_base and not frontend_base.startswith("http"):
+            frontend_base = f"https://{frontend_base}"
+
+        return Response(status_code=302, headers={"Location": f"{frontend_base}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
     except Exception as e:
         print(f"[GOOGLE OAUTH ERROR] {e} - falling back to demo SSO")
         return google_oauth_demo(request, db)
