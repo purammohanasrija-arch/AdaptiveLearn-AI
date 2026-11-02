@@ -14,7 +14,7 @@
 # Optional: Proxy /api requests to backend (change destination to your backend URL)
 [[redirects]]
   from = "/api/*"
-  to = "https://adaptivelearn-ai.onrender.com/api/:splat"
+  to = "https://adaptivelearn-backend.onrender.com/api/:splat"
   status = 200
 
 # Single-Page Application (SPA) catch-all rewrite for React Router

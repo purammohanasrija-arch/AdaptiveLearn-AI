@@ -79,11 +79,7 @@ export const AuthPage = () => {
   // Handle OAuth Redirect Callbacks & Token params
   useEffect(() => {
     if (oauthError) {
-      if (oauthError === 'google_not_configured' || oauthError === 'facebook_not_configured') {
-        setErrorMessage('Social login requires OAuth credentials in backend/.env. Use email/password or demo personas below.');
-      } else {
-        setErrorMessage(`OAuth authentication was cancelled or failed (${oauthError}).`);
-      }
+      setErrorMessage(`Authentication was cancelled or failed (${oauthError}).`);
     } else if (oauthToken && (tabParam === 'login' || !tabParam)) {
       handleOAuthSuccess(oauthToken);
     }
@@ -397,71 +393,6 @@ export const AuthPage = () => {
     }
   };
 
-  // Social OAuth Triggers
-  const handleInstantGoogle = () => {
-    playChime('click');
-    const googleUser = {
-      id: 'user-google-scholar',
-      name: 'Srija (Google Scholar)',
-      email: 'purammohanasrija@gmail.com',
-      role: 'student',
-      avatar: '🎓',
-      profile: {
-        preferredLanguage: 'English',
-        learningLevel: 'advanced',
-        preferredModality: 'visual',
-        readingLevel: 'grade-12',
-        baselineScore: 90.0,
-      },
-    };
-    setSessionAuth(googleUser, `google-token-${Date.now()}`);
-    playChime('celebration');
-    showToast('Signed in with Google!', 'success');
-    navigate('/dashboard');
-
-    // Fire and forget backend session synchronization if backend is reachable
-    try {
-      fetch(`${API_BASE}/auth/google/demo`, { method: 'GET' }).catch(() => {});
-    } catch (e) {
-      // Ignored
-    }
-  };
-
-  const handleSocialGoogle = async () => {
-    playChime('click');
-    setErrorMessage('');
-    if (window.location.hostname.includes('netlify.app')) {
-      handleInstantGoogle();
-      return;
-    }
-    try {
-      const res = await api.authGoogle();
-      if (res && res.authUrl && res.authUrl.includes('accounts.google.com')) {
-        window.location.href = res.authUrl;
-      } else {
-        handleInstantGoogle();
-      }
-    } catch (err) {
-      console.warn('Google OAuth initiation failed or backend offline, falling back:', err);
-      handleInstantGoogle();
-    }
-  };
-
-  const handleSocialFacebook = async () => {
-    playChime('click');
-    setErrorMessage('');
-    try {
-      const res = await api.authFacebook();
-      if (res.authUrl) {
-        window.location.href = res.authUrl;
-      } else {
-        setErrorMessage(res.message || 'Facebook Login initialization failed.');
-      }
-    } catch (err) {
-      setErrorMessage('Facebook Login initialization failed.');
-    }
-  };
-
   return (
     <div className="container" style={{ padding: '2.5rem 1rem', maxWidth: '640px', margin: '0 auto' }}>
       <div
@@ -642,7 +573,7 @@ export const AuthPage = () => {
               <Smartphone size={32} style={{ color: 'var(--primary)', marginBottom: '0.5rem' }} />
               <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.1rem', fontWeight: 800 }}>Enter 2FA Code</h3>
               <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Please open your Google Authenticator or authentication app and type the 6-digit code.
+                Please open your authenticator app (TOTP) and type the 6-digit code.
               </p>
             </div>
 
@@ -760,63 +691,6 @@ export const AuthPage = () => {
             >
               {loading ? 'Authenticating...' : 'Sign In'}
             </button>
-
-            {/* Social Authentication Buttons */}
-            <div style={{ position: 'relative', textAlign: 'center', margin: '1rem 0 0.5rem' }}>
-              <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', background: 'var(--border-color)' }} />
-              <span style={{ position: 'relative', background: 'var(--bg-surface)', padding: '0 0.75rem', fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                OR CONTINUE WITH
-              </span>
-            </div>
-
-            <div>
-              {/* Official Google Button */}
-              <button
-                type="button"
-                onClick={handleSocialGoogle}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.65rem',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '12px',
-                  border: '1px solid #DADCE0',
-                  background: '#FFFFFF',
-                  color: '#3C4043',
-                  fontSize: '0.88rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 18 18">
-                  <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z" />
-                  <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.85.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33C2.44 15.98 5.48 18 9 18z" />
-                  <path fill="#FBBC05" d="M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A8.99 8.99 0 0 0 0 9c0 1.45.35 2.82.96 4.04l3-2.33z" />
-                  <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.59C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z" />
-                </svg>
-                <span>Continue with Google</span>
-              </button>
-              <div style={{ textAlign: 'center', marginTop: '0.45rem' }}>
-                <button
-                  type="button"
-                  onClick={handleInstantGoogle}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--primary)',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                  }}
-                >
-                  ⚡ Instant 1-Click Google Sign-In (Demo/Bypass)
-                </button>
-              </div>
-            </div>
           </form>
         )}
 
