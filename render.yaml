@@ -32,3 +32,7 @@ services:
         value: dkqz tfqt bvni ypkf
       - key: SMTP_FROM_EMAIL
         value: support@adaptlearn.ai
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false

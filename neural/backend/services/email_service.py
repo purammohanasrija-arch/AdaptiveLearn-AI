@@ -6,7 +6,10 @@ Includes 10 responsive, accessible HTML email templates.
 
 import os
 import sys
+import re
 import smtplib
+import email.utils
+import traceback
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timezone
@@ -46,17 +49,26 @@ def get_smtp_config():
         "from": os.getenv("SMTP_FROM_EMAIL", os.getenv("SMTP_USERNAME", "support@adaptlearn.ai")).strip(),
     }
 
+def strip_html_tags(text: str) -> str:
+    """Utility to extract clean plain text from HTML content."""
+    clean = re.sub(r'<style.*?</style>', '', text, flags=re.DOTALL)
+    clean = re.sub(r'<script.*?</script>', '', clean, flags=re.DOTALL)
+    clean = re.sub(r'<[^>]+>', ' ', clean)
+    clean = re.sub(r'\s+', ' ', clean).strip()
+    return clean
+
 def send_email(to_email: str, subject: str, html_content: str, text_content: Optional[str] = None) -> bool:
     """
     Sends email via SMTP if configured; otherwise logs to OUTBOX and console for local verification.
     """
     cfg = get_smtp_config()
+    final_text = text_content or strip_html_tags(html_content) or subject
     email_record = {
         "to": to_email,
         "from": cfg["from"],
         "subject": subject,
         "html": html_content,
-        "text": text_content or subject,
+        "text": final_text,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     OUTBOX.append(email_record)
@@ -67,17 +79,21 @@ def send_email(to_email: str, subject: str, html_content: str, text_content: Opt
             # When using Gmail SMTP, the From address MUST match the authenticated Gmail account
             # to prevent Google DMARC/SPF spoofing filters from blocking delivery or moving to Spam.
             from_addr = cfg["user"] if "gmail" in cfg["host"].lower() else (cfg["from"] if cfg["from"] and "@" in cfg["from"] else cfg["user"])
+            domain = "gmail.com" if "gmail" in cfg["host"].lower() else "adaptlearn.ai"
+
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["From"] = f"AdaptiveLearn AI <{from_addr}>"
             msg["Reply-To"] = from_addr
             msg["To"] = to_email
-            msg["Auto-Submitted"] = "auto-generated"
-            msg["X-Auto-Response-Suppress"] = "All"
+            msg["Date"] = email.utils.formatdate(localtime=True)
+            msg["Message-ID"] = email.utils.make_msgid(domain=domain)
+            msg["MIME-Version"] = "1.0"
+            msg["X-Mailer"] = "AdaptiveLearn-AI"
 
-            if text_content:
-                msg.attach(MIMEText(text_content, "plain"))
-            msg.attach(MIMEText(html_content, "html"))
+            # Attach plain text first, then HTML alternative (RFC 2046 standard)
+            msg.attach(MIMEText(final_text, "plain", "utf-8"))
+            msg.attach(MIMEText(html_content, "html", "utf-8"))
 
             # Port 465 uses direct SSL (much faster & reliable for Gmail); Port 587 uses STARTTLS
             use_ssl = (cfg["port"] == 465) or ("gmail" in cfg["host"].lower())
@@ -97,7 +113,8 @@ def send_email(to_email: str, subject: str, html_content: str, text_content: Opt
             print(f"[EMAIL SERVICE] [SUCCESS] Real SMTP email delivered to {to_email}: {subject}")
             return True
         except Exception as e:
-            print(f"[EMAIL SERVICE] [FAILED] SMTP delivery error ({e}); recorded in local OUTBOX.")
+            print(f"[EMAIL SERVICE] [FAILED] SMTP delivery error: {e}")
+            traceback.print_exc()
             return False
     else:
         print(f"[EMAIL SERVICE] [LOCAL OUTBOX] To: {to_email} | Subject: {subject}")
@@ -160,12 +177,13 @@ def send_verification_email(to_email: str, user_name: str, verification_url: str
 # 3. OTP Verification
 # -----------------------------------------------------------------------------
 def send_otp_email(to_email: str, user_name: str, otp_code: str, purpose: str = "login") -> bool:
-    subject = f"{otp_code} is your AdaptiveLearn AI verification code"
+    subject = f"Your AdaptiveLearn AI Verification Code: {otp_code}"
     text_content = (
         f"Hello {user_name},\n\n"
         f"Your 6-digit verification code is: {otp_code}\n\n"
         f"This code is valid for 5 minutes. Never share this code with anyone.\n\n"
-        f"— AdaptiveLearn AI Team"
+        f"Best regards,\n"
+        f"The AdaptiveLearn AI Team"
     )
     html = f"""
     <!DOCTYPE html>
