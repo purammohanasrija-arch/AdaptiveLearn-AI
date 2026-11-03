@@ -125,12 +125,18 @@ export const AuthProvider = ({ children }) => {
         if (isMounted && res.success && res.user) {
           setUser(res.user);
           setActiveDemoId(null);
+        } else if (isMounted) {
+          // Default guest persona so visitors can explore all lessons and features freely like a website
+          const defaultGuest = demoProfiles['learner-a'];
+          setUser(defaultGuest);
+          setActiveDemoId('learner-a');
         }
       } catch (err) {
         // Not authenticated
         if (isMounted) {
-          setUser(null);
-          setActiveDemoId(null);
+          const defaultGuest = demoProfiles['learner-a'];
+          setUser(defaultGuest);
+          setActiveDemoId('learner-a');
         }
       } finally {
         if (isMounted) {
@@ -228,9 +234,10 @@ export const AuthProvider = ({ children }) => {
     } catch (e) {
       // Ignore network errors on logout
     }
-    setUser(null);
+    const guestUser = demoProfiles['learner-a'];
+    setUser(guestUser);
+    setActiveDemoId('learner-a');
     setToken(null);
-    setActiveDemoId(null);
     localStorage.removeItem('adaptlearn_active_demo');
     localStorage.removeItem('adaptlearn_token');
     localStorage.removeItem('adaptlearn_active_user');

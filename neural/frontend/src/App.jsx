@@ -65,18 +65,13 @@ const AuthLoadingScreen = () => (
 
 // Route Protection Guard (Prevents unauthorized URL hopping)
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, loading, isAuthenticated } = useAuth();
-  const location = useLocation();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <AuthLoadingScreen />;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
-  }
-
-  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+  if (allowedRoles && user && !allowedRoles.includes(user?.role)) {
     return <Navigate to={user?.role === 'teacher' ? '/teacher' : '/dashboard'} replace />;
   }
 
@@ -180,10 +175,10 @@ const AppShellLayout = () => {
         <main id="main-content" className="main-content" tabIndex="-1">
           <Routes>
             {/* Public & Authentication Routes */}
-            <Route path="/" element={<PublicAuthRoute />} />
-            <Route path="/auth" element={<PublicAuthRoute />} />
-            <Route path="/cover" element={<LandingPage />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/landing" element={<LandingPage />} />
+            <Route path="/cover" element={<LandingPage />} />
+            <Route path="/auth" element={<AuthPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/courses" element={<CourseExplorerPage />} />
             <Route path="/courses/:courseId" element={<CourseDetailPage />} />
