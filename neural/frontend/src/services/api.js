@@ -702,6 +702,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(payload),
     });
     const data = await res.json();
@@ -713,6 +714,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(payload),
     });
     const data = await res.json();
@@ -724,6 +726,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/logout`, {
       method: 'POST',
       headers: getHeaders(token),
+      credentials: 'include',
     });
     return res.json();
   },
@@ -732,6 +735,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ refreshToken }),
     });
     const data = await res.json();
@@ -742,6 +746,7 @@ export const api = {
   async authGetMe(token = null) {
     const res = await fetch(`${API_BASE}/auth/me`, {
       headers: getHeaders(token),
+      credentials: 'include',
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Authentication failed');
@@ -762,6 +767,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/verify-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ token }),
     });
     const data = await res.json();
@@ -773,6 +779,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/resend-verification`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ email }),
     });
     return res.json();
@@ -782,6 +789,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ email, purpose }),
     });
     const data = await res.json();
@@ -793,6 +801,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ email, otp, purpose }),
     });
     const data = await res.json();
@@ -804,6 +813,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/forgot-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ email }),
     });
     return res.json();
@@ -813,6 +823,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ token, newPassword }),
     });
     const data = await res.json();

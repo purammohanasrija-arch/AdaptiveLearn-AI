@@ -33,7 +33,7 @@ import bcrypt
 import pyotp
 import jwt
 import requests
-from fastapi import APIRouter, Depends, HTTPException, Header, Request, Response, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Header, Cookie, Request, Response, Query, status
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 
@@ -162,25 +162,89 @@ def log_security_event(db: Session, event_type: str, user_id: Optional[str] = No
         print(f"[SECURITY LOG ERROR] {e}")
 
 # =============================================================================
+# RATE LIMITING STORE & COOKIE HELPERS
+# =============================================================================
+
+RATE_LIMIT_STORE: Dict[str, Dict[str, List[float]]] = {
+    "login": {},
+    "register": {},
+    "forgot_password": {},
+}
+
+def check_rate_limit(action: str, ip: str, max_requests: int = 10, window_seconds: int = 60):
+    now = time.time()
+    store = RATE_LIMIT_STORE.setdefault(action, {})
+    timestamps = store.get(ip, [])
+    # Filter to active window
+    timestamps = [t for t in timestamps if now - t < window_seconds]
+    if len(timestamps) >= max_requests:
+        wait_sec = int(window_seconds - (now - timestamps[0]))
+        raise HTTPException(
+            status_code=429,
+            detail=f"Too many {action} attempts from your network. Please wait {max(1, wait_sec)} seconds before trying again."
+        )
+    timestamps.append(now)
+    store[ip] = timestamps
+
+def set_auth_cookies(response: Response, access_token: str, refresh_token: Optional[str] = None, remember_me: bool = False):
+    max_age_access = ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    max_age_refresh = (REMEMBER_ME_DAYS if remember_me else REFRESH_TOKEN_EXPIRE_DAYS) * 86400
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        max_age=max_age_access,
+        expires=max_age_access,
+        httponly=True,
+        samesite="lax",
+        secure=False if ("localhost" in FRONTEND_URL or "127.0.0.1" in FRONTEND_URL) else True,
+        path="/",
+    )
+    if refresh_token:
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            max_age=max_age_refresh,
+            expires=max_age_refresh,
+            httponly=True,
+            samesite="lax",
+            secure=False if ("localhost" in FRONTEND_URL or "127.0.0.1" in FRONTEND_URL) else True,
+            path="/",
+        )
+
+def clear_auth_cookies(response: Response):
+    response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(key="refresh_token", path="/")
+
+# =============================================================================
 # DEPENDENCY: CURRENT USER RESOLUTION
 # =============================================================================
 
 def get_current_user_from_header(
-    authorization: str = Header(None),
-    x_demo_user_id: str = Header(None, alias="X-Demo-User-Id"),
+    request: Request = None,
+    authorization: Optional[str] = Header(None),
+    x_demo_user_id: Optional[str] = Header(None, alias="X-Demo-User-Id"),
+    access_token_cookie: Optional[str] = Cookie(None, alias="access_token"),
     db: Session = Depends(get_db),
 ) -> Optional[User]:
     """
     Extracts current authenticated user from:
     1. X-Demo-User-Id header (for active persona switching & testing)
-    2. Authorization: Bearer <token> (JWT or legacy token)
-    3. Graceful fallback for unauthenticated demo navigation
+    2. Authorization: Bearer <token> (JWT header)
+    3. access_token HttpOnly cookie (production secure cookie storage)
+    Returns None if unauthenticated.
     """
+    token = None
     target_id = None
+
     if x_demo_user_id:
         target_id = x_demo_user_id
     elif authorization and authorization.startswith("Bearer "):
         token = authorization.replace("Bearer ", "").strip()
+    elif access_token_cookie:
+        token = access_token_cookie.strip()
+
+    if token and not target_id:
         decoded = decode_jwt_token(token)
         if decoded and decoded.get("sub"):
             target_id = decoded["sub"]
@@ -194,11 +258,9 @@ def get_current_user_from_header(
             target_id = "user-student-b"
         elif token == "demo-token-teacher":
             target_id = "user-teacher-1"
-        else:
-            target_id = token
 
     if not target_id:
-        target_id = "user-student-a"
+        return None
 
     user = db.query(User).filter(User.id == target_id).first()
     return user
@@ -284,8 +346,12 @@ class Disable2FARequest(BaseModel):
 def register_user(
     payload: RegisterRequest,
     request: Request,
+    response: Response,
     db: Session = Depends(get_db),
 ):
+    ip_addr = request.client.host if request.client else "127.0.0.1"
+    check_rate_limit("register", ip_addr, max_requests=6, window_seconds=300)
+
     email = payload.email.strip().lower()
     name = payload.name.strip()
     role = (payload.role or "student").lower()
@@ -306,7 +372,7 @@ def register_user(
     # Check duplicate email
     existing = db.query(User).filter(User.email == email).first()
     if existing:
-        raise HTTPException(status_code=400, detail="An account with this email address already exists.")
+        raise HTTPException(status_code=400, detail="An account with this email address already exists. Please sign in.")
 
     new_id = f"user-{uuid.uuid4().hex[:8]}"
     hashed_pw = hash_password(payload.password)
@@ -369,7 +435,7 @@ def register_user(
         id=session_id,
         user_id=new_id,
         refresh_token_hash=sha256_hash(raw_refresh),
-        ip_address=request.client.host if request.client else "127.0.0.1",
+        ip_address=ip_addr,
         user_agent=request.headers.get("user-agent", "Web Browser")[:500],
         device_name="Web Browser",
         expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
@@ -377,16 +443,25 @@ def register_user(
     db.add(user_session)
     db.commit()
 
-    # Send verification email
-    verify_url = f"{FRONTEND_URL}/auth?tab=verify-email&token={raw_verify_token}"
-    email_service.send_verification_email(email, name, verify_url)
-    email_service.send_welcome_email(email, name, role)
+    # Set Secure HttpOnly Cookies
+    set_auth_cookies(response, access_token, raw_refresh, remember_me=True)
 
-    log_security_event(db, "REGISTER", user_id=new_id, ip_address=request.client.host if request.client else "127.0.0.1", details={"role": role})
+    # Dispatch verification & welcome emails in background daemon thread
+    verify_url = f"{FRONTEND_URL}/auth?tab=verify-email&token={raw_verify_token}"
+    import threading
+    threading.Thread(
+        target=lambda: (
+            email_service.send_verification_email(email, name, verify_url),
+            email_service.send_welcome_email(email, name, role)
+        ),
+        daemon=True,
+    ).start()
+
+    log_security_event(db, "REGISTER", user_id=new_id, ip_address=ip_addr, details={"role": role})
 
     return {
         "success": True,
-        "message": "Account created successfully! Verification email dispatched.",
+        "message": f"Welcome aboard, {name}! Your secure account has been created.",
         "token": access_token,
         "refreshToken": raw_refresh,
         "user": user.to_dict(),
@@ -400,11 +475,14 @@ def register_user(
 def login_user(
     payload: LoginRequest,
     request: Request,
+    response: Response,
     db: Session = Depends(get_db),
 ):
-    email = payload.email.strip().lower()
     ip_addr = request.client.host if request.client else "127.0.0.1"
     user_agent = request.headers.get("user-agent", "Web Browser")[:500]
+    check_rate_limit("login", ip_addr, max_requests=10, window_seconds=60)
+
+    email = payload.email.strip().lower()
 
     user = db.query(User).filter(User.email == email).first()
 
@@ -482,6 +560,9 @@ def login_user(
     db.add(session_record)
     db.commit()
 
+    # Set Secure HttpOnly Cookies
+    set_auth_cookies(response, access_token, raw_refresh, remember_me=payload.rememberMe)
+
     log_security_event(db, "LOGIN_SUCCESS", user_id=user.id, ip_address=ip_addr, user_agent=user_agent)
 
     return {
@@ -498,9 +579,11 @@ def login_user(
 @router.post("/logout")
 def logout_user(
     request: Request,
+    response: Response,
     user: Optional[User] = Depends(get_current_user_from_header),
     db: Session = Depends(get_db),
 ):
+    clear_auth_cookies(response)
     if user:
         # Revoke user sessions
         db.query(UserSession).filter(
@@ -508,12 +591,9 @@ def logout_user(
             UserSession.revoked_at == None,
         ).update({"revoked_at": datetime.utcnow()})
         db.commit()
-        log_security_event(db, "LOGOUT", user_id=user.id)
+        log_security_event(db, "LOGOUT", user_id=user.id, ip_address=request.client.host if request.client else "127.0.0.1")
 
-    return {
-        "success": True,
-        "message": "Logged out successfully from session.",
-    }
+    return {"success": True, "message": "Successfully logged out. Session destroyed."}
 
 # =============================================================================
 # 4. POST /api/auth/refresh
@@ -670,7 +750,9 @@ def google_oauth_demo(request: Request, db: Session = Depends(get_db)):
     db.commit()
 
     log_security_event(db, "OAUTH_LOGIN", user_id=user.id, ip_address=request.client.host if request.client else "127.0.0.1", details={"provider": "google", "mode": "demo"})
-    return Response(status_code=302, headers={"Location": f"{FRONTEND_URL}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
+    resp = Response(status_code=302, headers={"Location": f"{FRONTEND_URL}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
+    set_auth_cookies(resp, jwt_token, raw_refresh)
+    return resp
 
 @router.get("/google/callback")
 def google_oauth_callback(
@@ -764,7 +846,9 @@ def google_oauth_callback(
         db.add(user_session)
         db.commit()
 
-        return Response(status_code=302, headers={"Location": f"{FRONTEND_URL}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
+        resp = Response(status_code=302, headers={"Location": f"{FRONTEND_URL}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
+        set_auth_cookies(resp, jwt_token, raw_refresh)
+        return resp
     except Exception as e:
         print(f"[GOOGLE OAUTH ERROR] {e} - falling back to demo SSO")
         return google_oauth_demo(request, db)
@@ -974,7 +1058,12 @@ def resend_email_verification(payload: ResendVerificationRequest, db: Session = 
     db.commit()
 
     verify_url = f"{FRONTEND_URL}/auth?tab=verify-email&token={raw_token}"
-    email_service.send_verification_email(user.email, user.name, verify_url)
+    import threading
+    threading.Thread(
+        target=email_service.send_verification_email,
+        args=(user.email, user.name, verify_url),
+        daemon=True,
+    ).start()
 
     return {
         "success": True,
@@ -1106,7 +1195,14 @@ def verify_email_otp(payload: VerifyOTPRequest, request: Request, db: Session = 
 # 10. FORGOT & RESET PASSWORD (POST /forgot-password & POST /reset-password)
 # =============================================================================
 @router.post("/forgot-password")
-def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    ip_addr = request.client.host if request.client else "127.0.0.1"
+    check_rate_limit("forgot_password", ip_addr, max_requests=5, window_seconds=300)
+
     email = payload.email.strip().lower()
     user = db.query(User).filter(User.email == email).first()
 
@@ -1125,8 +1221,13 @@ def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db
         db.commit()
 
         reset_url = f"{FRONTEND_URL}/auth?tab=reset-password&token={raw_reset_token}"
-        email_service.send_password_reset_email(user.email, user.name, reset_url)
-        log_security_event(db, "PASSWORD_RESET_REQUESTED", user_id=user.id)
+        import threading
+        threading.Thread(
+            target=email_service.send_password_reset_email,
+            args=(user.email, user.name, reset_url),
+            daemon=True,
+        ).start()
+        log_security_event(db, "PASSWORD_RESET_REQUESTED", user_id=user.id, ip_address=ip_addr)
 
     # Prevent Account Enumeration: Return uniform response regardless of whether user was found
     return {

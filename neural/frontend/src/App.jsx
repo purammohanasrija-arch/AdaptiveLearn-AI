@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AccessibilityProvider, useAccessibility } from './context/AccessibilityContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 
 import { Sidebar } from './components/Sidebar';
@@ -38,6 +38,71 @@ import { AccountSecurityPage } from './pages/AccountSecurityPage';
 import { CourseExplorerPage } from './pages/CourseExplorerPage';
 import { CourseDetailPage } from './pages/CourseDetailPage';
 import { LessonPlayerPage } from './pages/LessonPlayerPage';
+
+// Loading Spinner during Auth Validation
+const AuthLoadingScreen = () => (
+  <div style={{
+    minHeight: '75vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '1.25rem',
+  }}>
+    <div style={{
+      width: '46px',
+      height: '46px',
+      border: '4px solid rgba(232, 59, 100, 0.15)',
+      borderTopColor: '#E83B64',
+      borderRadius: '50%',
+      animation: 'spin 0.8s linear infinite',
+    }} />
+    <span style={{ fontSize: '0.92rem', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.01em' }}>
+      Verifying secure learning session...
+    </span>
+  </div>
+);
+
+// Route Protection Guard (Prevents unauthorized URL hopping)
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, loading, isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <AuthLoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    return <Navigate to={user?.role === 'teacher' ? '/teacher' : '/dashboard'} replace />;
+  }
+
+  return children;
+};
+
+// Public Route Guard (Redirects already logged in users to Dashboard)
+const PublicAuthRoute = () => {
+  const { user, loading, isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <AuthLoadingScreen />;
+  }
+
+  if (isAuthenticated) {
+    const params = new URLSearchParams(location.search);
+    const redirectUrl = params.get('redirect');
+    if (redirectUrl && redirectUrl.startsWith('/') && !redirectUrl.startsWith('//')) {
+      return <Navigate to={redirectUrl} replace />;
+    }
+    return <Navigate to={user?.role === 'teacher' ? '/teacher' : '/dashboard'} replace />;
+  }
+
+  return <AuthPage />;
+};
 
 // Inner shell layout connecting Sidebar, TopNav, and Router
 const AppShellLayout = () => {
@@ -114,33 +179,38 @@ const AppShellLayout = () => {
 
         <main id="main-content" className="main-content" tabIndex="-1">
           <Routes>
-            {/* Auth appears before cover page as requested */}
-            <Route path="/" element={<AuthPage />} />
-            <Route path="/auth" element={<AuthPage />} />
+            {/* Public & Authentication Routes */}
+            <Route path="/" element={<PublicAuthRoute />} />
+            <Route path="/auth" element={<PublicAuthRoute />} />
             <Route path="/cover" element={<LandingPage />} />
             <Route path="/landing" element={<LandingPage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/courses" element={<CourseExplorerPage />} />
             <Route path="/courses/:courseId" element={<CourseDetailPage />} />
-            <Route path="/courses/:courseId/learn/:lessonId" element={<LessonPlayerPage />} />
-            <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route path="/dashboard" element={<StudentDashboardPage />} />
-            <Route path="/lessons" element={<LessonLibraryPage />} />
-            <Route path="/lessons/:id" element={<AdaptiveLessonPlayerPage />} />
-            <Route path="/lab" element={<AdaptiveLabPage />} />
-            <Route path="/tutor" element={<AITutorPage />} />
-            <Route path="/quiz/:id" element={<QuizPage />} />
-            <Route path="/progress" element={<ProgressPage />} />
-            <Route path="/achievements" element={<AchievementsPage />} />
-            <Route path="/accessibility" element={<AccessibilitySettingsPage />} />
-            <Route path="/teacher" element={<TeacherDashboardPage />} />
-            <Route path="/teacher/student/:id" element={<StudentAnalyticsPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/videos" element={<VideoLibraryPage />} />
-            <Route path="/twin" element={<LearningTwinPage />} />
-            <Route path="/exams" element={<ExamGeneratorPage />} />
-            <Route path="/passport" element={<AchievementPassportPage />} />
-            <Route path="/parent" element={<ParentDashboardPage />} />
-            <Route path="/security" element={<AccountSecurityPage />} />
+
+            {/* Protected Learner & Common Routes */}
+            <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><StudentDashboardPage /></ProtectedRoute>} />
+            <Route path="/lessons" element={<ProtectedRoute><LessonLibraryPage /></ProtectedRoute>} />
+            <Route path="/lessons/:id" element={<ProtectedRoute><AdaptiveLessonPlayerPage /></ProtectedRoute>} />
+            <Route path="/courses/:courseId/learn/:lessonId" element={<ProtectedRoute><LessonPlayerPage /></ProtectedRoute>} />
+            <Route path="/lab" element={<ProtectedRoute><AdaptiveLabPage /></ProtectedRoute>} />
+            <Route path="/tutor" element={<ProtectedRoute><AITutorPage /></ProtectedRoute>} />
+            <Route path="/quiz/:id" element={<ProtectedRoute><QuizPage /></ProtectedRoute>} />
+            <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
+            <Route path="/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
+            <Route path="/accessibility" element={<ProtectedRoute><AccessibilitySettingsPage /></ProtectedRoute>} />
+            <Route path="/videos" element={<ProtectedRoute><VideoLibraryPage /></ProtectedRoute>} />
+            <Route path="/twin" element={<ProtectedRoute><LearningTwinPage /></ProtectedRoute>} />
+            <Route path="/exams" element={<ProtectedRoute><ExamGeneratorPage /></ProtectedRoute>} />
+            <Route path="/passport" element={<ProtectedRoute><AchievementPassportPage /></ProtectedRoute>} />
+            <Route path="/parent" element={<ProtectedRoute><ParentDashboardPage /></ProtectedRoute>} />
+            <Route path="/security" element={<ProtectedRoute><AccountSecurityPage /></ProtectedRoute>} />
+
+            {/* Protected Faculty & Teacher Routes */}
+            <Route path="/teacher" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherDashboardPage /></ProtectedRoute>} />
+            <Route path="/teacher/student/:id" element={<ProtectedRoute allowedRoles={['teacher']}><StudentAnalyticsPage /></ProtectedRoute>} />
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

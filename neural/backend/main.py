@@ -57,13 +57,27 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Enable CORS for frontend Vite application
+# Enable Secure CORS for frontend (handles credentials & cookies across dev & production)
+CORS_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
+    "https://adaptivelearn-ai-1.onrender.com",
+    "https://adaptivelearn-ai.onrender.com",
+]
+frontend_url = os.getenv("FRONTEND_URL", "").strip()
+if frontend_url and frontend_url not in CORS_ORIGINS:
+    CORS_ORIGINS.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|.*\.onrender\.com|.*\.netlify\.app|.*\.vercel\.app)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Set-Cookie"],
 )
 
 # Mount all API Routers under /api
