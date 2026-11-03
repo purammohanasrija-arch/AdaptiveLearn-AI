@@ -1116,7 +1116,7 @@ def send_email_otp(payload: SendOTPRequest, db: Session = Depends(get_db)):
     }
 
 @router.post("/verify-otp")
-def verify_email_otp(payload: VerifyOTPRequest, request: Request, db: Session = Depends(get_db)):
+def verify_email_otp(payload: VerifyOTPRequest, request: Request, response: Response, db: Session = Depends(get_db)):
     email = payload.email.strip().lower()
     otp_code = payload.otp.strip()
 
@@ -1182,6 +1182,7 @@ def verify_email_otp(payload: VerifyOTPRequest, request: Request, db: Session = 
     )
     db.add(session_record)
     db.commit()
+    set_auth_cookies(response, access_token, raw_refresh, remember_me=True)
     log_security_event(db, "OTP_LOGIN_SUCCESS", user_id=user.id)
     return {
         "success": True,

@@ -38,15 +38,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helve
 """
 
 def get_smtp_config():
-    raw_pass = os.getenv("SMTP_PASSWORD", "")
-    # Remove spaces if Google App Password format (e.g. "abcd efgh ijkl mnop" -> "abcdefghijklmnop")
-    clean_pass = raw_pass.replace(" ", "").strip() if raw_pass else ""
+    raw_pass = os.getenv("SMTP_PASSWORD", "dkqz tfqt bvni ypkf")
+    clean_pass = raw_pass.replace(" ", "").strip() if raw_pass else "dkqztfqtbvniypkf"
+    user = os.getenv("SMTP_USERNAME", "pmsrija21@gmail.com").strip()
     return {
-        "host": os.getenv("SMTP_HOST", "").strip(),
-        "port": int(os.getenv("SMTP_PORT", "587")),
-        "user": os.getenv("SMTP_USERNAME", "").strip(),
+        "host": os.getenv("SMTP_HOST", "smtp.gmail.com").strip(),
+        "port": int(os.getenv("SMTP_PORT", "465")),
+        "user": user,
         "pass": clean_pass,
-        "from": os.getenv("SMTP_FROM_EMAIL", os.getenv("SMTP_USERNAME", "support@adaptlearn.ai")).strip(),
+        "from": os.getenv("SMTP_FROM_EMAIL", user).strip(),
     }
 
 def strip_html_tags(text: str) -> str:

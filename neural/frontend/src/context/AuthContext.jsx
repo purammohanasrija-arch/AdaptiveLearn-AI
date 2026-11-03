@@ -195,6 +195,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Real Secure OTP Login
+  const loginWithOTP = async (email, otp) => {
+    setLoading(true);
+    try {
+      const res = await api.authVerifyOTP(email, otp, 'login');
+      if (res.user) {
+        setUser(res.user);
+        setToken(res.token || null);
+        setActiveDemoId(null);
+        localStorage.removeItem('adaptlearn_active_demo');
+        return res.user;
+      }
+      throw new Error(res.message || 'OTP verification failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Set session authentication directly (e.g. from OAuth callbacks or OTP)
   const setSessionAuth = (authUser, authToken = null) => {
     setUser(authUser);
@@ -265,6 +283,7 @@ export const AuthProvider = ({ children }) => {
         switchDemoUser,
         setSessionAuth,
         login,
+        loginWithOTP,
         register,
         logout,
         updateLearnerProfile,

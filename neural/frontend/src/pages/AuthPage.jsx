@@ -85,8 +85,101 @@ const MODALITY_SHOWCASE = [
 export const AuthPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login, register, switchDemoUser } = useAuth();
+  const { login, loginWithOTP, register, switchDemoUser } = useAuth();
   const { playChime, speakText, stopSpeech, isSpeaking } = useAccessibility();
+
+  // Email OTP States
+  const [otpEmail, setOtpEmail] = useState('');
+  const [otpStep, setOtpStep] = useState('request'); // 'request' | 'verify'
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+  const [otpCountdown, setOtpCountdown] = useState(0);
+
+  // OTP Countdown timer
+  useEffect(() => {
+    if (otpCountdown <= 0) return;
+    const t = setInterval(() => setOtpCountdown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [otpCountdown]);
+
+  // Request 6-digit OTP code to Gmail
+  const handleSendOtp = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+    if (!otpEmail.trim() || !otpEmail.includes('@')) {
+      setErrorMessage('Please enter a valid Gmail / email address.');
+      return;
+    }
+    setLoading(true);
+    playChime('click');
+    try {
+      const res = await api.authSendOTP(otpEmail.trim(), 'login');
+      setOtpStep('verify');
+      setOtpCountdown(60);
+      setSuccessMessage(res.message || `A 6-digit verification code has been dispatched to ${otpEmail.trim()}. Check your inbox.`);
+      playChime('chime');
+      showToast('OTP sent to your email!', 'success');
+    } catch (err) {
+      setErrorMessage(err.message || 'Unable to dispatch OTP code. Please try again.');
+      playChime('alert');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Digit input auto-focus & paste
+  const handleDigitChange = (index, value) => {
+    if (value.length > 1) {
+      const pasted = value.replace(/[^0-9]/g, '').slice(0, 6);
+      if (pasted.length === 6) {
+        setOtpDigits(pasted.split(''));
+        const lastInput = document.getElementById('otp-input-5');
+        if (lastInput) lastInput.focus();
+        return;
+      }
+    }
+    const cleanVal = value.replace(/[^0-9]/g, '');
+    const updated = [...otpDigits];
+    updated[index] = cleanVal.slice(-1);
+    setOtpDigits(updated);
+
+    if (cleanVal && index < 5) {
+      const nextInput = document.getElementById(`otp-input-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
+  const handleDigitKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-input-${index - 1}`);
+      if (prevInput) prevInput.focus();
+    }
+  };
+
+  // Verify 6-digit OTP code
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+    const fullCode = otpDigits.join('');
+    if (fullCode.length !== 6) {
+      setErrorMessage('Please enter all 6 digits of the code sent to your email.');
+      return;
+    }
+    setLoading(true);
+    playChime('click');
+    try {
+      const loggedUser = await loginWithOTP(otpEmail.trim(), fullCode);
+      playChime('celebration');
+      showToast(`Welcome, ${loggedUser.name}!`, 'success');
+      handleDestination(loggedUser);
+    } catch (err) {
+      setErrorMessage(err.message || 'Invalid or expired OTP code. Please try again.');
+      playChime('alert');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Showcase Interactive State
   const [activeModality, setActiveModality] = useState(0);
@@ -878,7 +971,8 @@ export const AuthPage = () => {
             margin: 0,
             fontWeight: 500,
           }}>
-            {activeTab === 'login' && 'Sign in to your personalized inclusive workspace'}
+            {activeTab === 'login' && 'Sign in with your password to your inclusive workspace'}
+            {activeTab === 'otp' && 'Passwordless 6-digit email OTP sign-in'}
             {activeTab === 'register' && 'Create your secure, adaptive learning account'}
             {activeTab === 'forgot-password' && 'Recover your account password'}
             {activeTab === 'reset-password' && 'Set a new secure password'}
@@ -926,8 +1020,8 @@ export const AuthPage = () => {
           </div>
         )}
 
-        {/* Top Segmented Tab Switcher (Visible on Login & Register) */}
-        {(activeTab === 'login' || activeTab === 'register') && (
+        {/* Top Segmented Tab Switcher (Visible on Login, OTP & Register) */}
+        {(activeTab === 'login' || activeTab === 'otp' || activeTab === 'register') && (
           <div style={{
             display: 'flex',
             background: 'var(--bg-main)',
@@ -950,7 +1044,7 @@ export const AuthPage = () => {
                 border: 'none',
                 borderRadius: '10px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.86rem',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 background: activeTab === 'login' ? 'var(--bg-surface)' : 'transparent',
@@ -959,6 +1053,30 @@ export const AuthPage = () => {
               }}
             >
               Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('otp');
+                setErrorMessage('');
+                setSuccessMessage('');
+                playChime('click');
+              }}
+              style={{
+                flex: 1,
+                padding: '0.65rem 0',
+                border: 'none',
+                borderRadius: '10px',
+                fontWeight: 700,
+                fontSize: '0.86rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                background: activeTab === 'otp' ? 'var(--bg-surface)' : 'transparent',
+                color: activeTab === 'otp' ? 'var(--primary)' : 'var(--text-muted)',
+                boxShadow: activeTab === 'otp' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+              }}
+            >
+              Email OTP
             </button>
             <button
               type="button"
@@ -974,7 +1092,7 @@ export const AuthPage = () => {
                 border: 'none',
                 borderRadius: '10px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.86rem',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 background: activeTab === 'register' ? 'var(--bg-surface)' : 'transparent',
@@ -982,7 +1100,7 @@ export const AuthPage = () => {
                 boxShadow: activeTab === 'register' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
               }}
             >
-              Create Account
+              Register
             </button>
           </div>
         )}
@@ -1231,6 +1349,219 @@ export const AuthPage = () => {
               </div>
             </div>
           </form>
+        )}
+
+        {/* ================================================================= */}
+        {/* VIEW: EMAIL OTP AUTHENTICATION */}
+        {/* ================================================================= */}
+        {activeTab === 'otp' && (
+          <div>
+            {otpStep === 'request' ? (
+              <form onSubmit={handleSendOtp} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-main)' }}>
+                    Your Gmail / Email Address
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Mail size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. name@gmail.com"
+                      value={otpEmail}
+                      onChange={(e) => setOtpEmail(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '0.85rem 1rem 0.85rem 2.75rem',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-color)',
+                        background: 'var(--bg-main)',
+                        color: 'var(--text-main)',
+                        fontSize: '0.95rem',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.45rem', lineHeight: 1.4 }}>
+                    We will send a real 6-digit verification code directly to your Gmail inbox via SMTP.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn btn-primary"
+                  style={{
+                    width: '100%',
+                    padding: '0.9rem',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 6px 18px rgba(232, 59, 100, 0.28)',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                      <span>Sending Code to Gmail...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send 6-Digit Code</span>
+                      <ArrowRight size={18} />
+                    </>
+                  )}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: '0 0 1rem' }}>
+                    Enter the 6-digit code dispatched to <strong>{otpEmail}</strong>:
+                  </p>
+
+                  {/* 6 Digit Input Boxes */}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                    {otpDigits.map((digit, idx) => (
+                      <input
+                        key={idx}
+                        id={`otp-input-${idx}`}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={digit}
+                        onChange={(e) => handleDigitChange(idx, e.target.value)}
+                        onKeyDown={(e) => handleDigitKeyDown(idx, e)}
+                        style={{
+                          width: '46px',
+                          height: '52px',
+                          textAlign: 'center',
+                          fontSize: '1.4rem',
+                          fontWeight: 800,
+                          borderRadius: '12px',
+                          border: digit ? '2px solid var(--primary)' : '1px solid var(--border-color)',
+                          background: 'var(--bg-main)',
+                          color: 'var(--text-main)',
+                          outline: 'none',
+                          boxShadow: digit ? '0 2px 8px rgba(232, 59, 100, 0.15)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || otpDigits.join('').length !== 6}
+                  className="btn btn-primary"
+                  style={{
+                    width: '100%',
+                    padding: '0.9rem',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 6px 18px rgba(232, 59, 100, 0.28)',
+                    cursor: (loading || otpDigits.join('').length !== 6) ? 'not-allowed' : 'pointer',
+                    opacity: otpDigits.join('').length === 6 ? 1 : 0.65,
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                      <span>Verifying Code...</span>
+                    </>
+                  ) : (
+                    <span>Verify Code & Sign In</span>
+                  )}
+                </button>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpStep('request');
+                      setOtpDigits(['', '', '', '', '', '']);
+                      setErrorMessage('');
+                      setSuccessMessage('');
+                    }}
+                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+                  >
+                    Change Email
+                  </button>
+
+                  {otpCountdown > 0 ? (
+                    <span style={{ color: 'var(--text-muted)' }}>Resend in {otpCountdown}s</span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                    >
+                      Resend Code
+                    </button>
+                  )}
+                </div>
+              </form>
+            )}
+
+            {/* Quick Demo Access Bar for Unstop Evaluators */}
+            <div style={{
+              background: 'rgba(232, 59, 100, 0.04)',
+              border: '1px dashed rgba(232, 59, 100, 0.25)',
+              borderRadius: '12px',
+              padding: '0.85rem',
+              marginTop: '1.25rem',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                🚀 Quick Evaluator Sign-In (Unstop Judges)
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                <button
+                  type="button"
+                  onClick={() => handleSelectDemoPersona('learner-a')}
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid var(--border-color)',
+                    padding: '0.4rem 0.75rem',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    color: 'var(--text-main)',
+                  }}
+                >
+                  👦🏽 Student (Aarav)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSelectDemoPersona('teacher')}
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid var(--border-color)',
+                    padding: '0.4rem 0.75rem',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    color: 'var(--text-main)',
+                  }}
+                >
+                  👩🏻‍🏫 Teacher (Dr. Elena)
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* ================================================================= */}
