@@ -51,3 +51,6 @@ Thumbs.db
 *.sublime-workspace
 .pytest_cache/
 VIGNAN_PROJECT_RECORD.md
+
+scratch/
+

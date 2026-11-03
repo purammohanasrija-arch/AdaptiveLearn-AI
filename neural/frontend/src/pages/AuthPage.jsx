@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { useAuth, demoProfiles } from '../context/AuthContext';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useAccessibility } from '../context/AccessibilityContext';
 import { useToast } from '../context/ToastContext';
 import { api } from '../services/api';
+import authShowcaseImg from '../assets/auth-showcase.png';
 import {
   Sparkles,
   ArrowRight,
@@ -16,18 +17,99 @@ import {
   Eye,
   EyeOff,
   ShieldCheck,
-  KeyRound,
   AlertCircle,
   Check,
   RefreshCw,
   School,
+  Brain,
+  Headphones,
+  BookOpen,
+  HandMetal,
+  TrendingUp,
+  Award,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
+
+const MODALITY_SHOWCASE = [
+  {
+    id: 'dna',
+    icon: Brain,
+    title: 'AI Learning DNA',
+    tag: 'Bayesian BKT & Elo',
+    description: 'Calibrates lesson difficulty in real time to match your unique comprehension curve.',
+    metrics: [
+      { label: 'Mastery Gain', val: '+42%' },
+      { label: 'Speed', val: '1.4x' },
+    ],
+    highlight: 'Real-time knowledge gap misconception detection active.',
+  },
+  {
+    id: 'audio',
+    icon: Headphones,
+    title: 'Audio Narration',
+    tag: 'Hands-Free Voice',
+    description: 'Natural text-to-speech with adjustable pace, pitch, and synchronized sentence tracking.',
+    metrics: [
+      { label: 'Speech Rate', val: '0.85x' },
+      { label: 'Clarity', val: 'HD Voice' },
+    ],
+    highlight: '"Photosynthesis converts solar photons into stable chemical bonds."',
+  },
+  {
+    id: 'dyslexic',
+    icon: BookOpen,
+    title: 'Dyslexia Friendly',
+    tag: 'OpenDyslexic & Lexend',
+    description: 'Weighted letter stems and visual spotlight reading rulers to prevent letter flipping.',
+    metrics: [
+      { label: 'Contrast', val: 'AAA WCAG' },
+      { label: 'Spacing', val: 'Relaxed' },
+    ],
+    highlight: 'Enhanced letter distinction for effortless reading flow.',
+  },
+  {
+    id: 'sign',
+    icon: HandMetal,
+    title: 'Visual & Sign Language',
+    tag: 'Deaf & Hard of Hearing',
+    description: 'Multi-angle sign language demonstrations, visual concept maps, and timestamped transcripts.',
+    metrics: [
+      { label: 'Sign Terms', val: '260+' },
+      { label: 'Captions', val: '100% CC' },
+    ],
+    highlight: 'Technical STEM terms visualised with verified sign gestures.',
+  },
+];
 
 export const AuthPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, login, register, switchDemoUser, setSessionAuth } = useAuth();
-  const { playChime, speakText } = useAccessibility();
+  const { login, register, switchDemoUser } = useAuth();
+  const { playChime, speakText, stopSpeech, isSpeaking } = useAccessibility();
+
+  // Showcase Interactive State
+  const [activeModality, setActiveModality] = useState(0);
+  const [bktMastery, setBktMastery] = useState(84);
+  const [dyslexicPreview, setDyslexicPreview] = useState(false);
+  const [selectedSignWord, setSelectedSignWord] = useState('Photosynthesis');
+
+  // Auto-rotate showcase modalities every 7 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveModality((prev) => (prev + 1) % MODALITY_SHOWCASE.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleAudioNarrationDemo = () => {
+    if (isSpeaking) {
+      stopSpeech();
+    } else {
+      playChime('click');
+      speakText('Photosynthesis converts solar photons into stable chemical bonds, fueling life across our planet.');
+    }
+  };
   const toast = useToast();
 
   const showToast = (msg, type = 'info') => {
@@ -329,20 +411,442 @@ export const AuthPage = () => {
         pointerEvents: 'none',
       }} />
 
-      {/* Main Glassmorphic Card Container */}
+      {/* Split-Screen Grid Layout Container */}
       <div style={{
         width: '100%',
-        maxWidth: '480px',
-        background: 'var(--bg-surface)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '24px',
-        border: '1px solid var(--border-color)',
-        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
-        padding: '2.5rem 2.25rem',
+        maxWidth: '1240px',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+        gap: '3rem',
+        alignItems: 'center',
         position: 'relative',
         zIndex: 10,
+        margin: '0 auto',
       }}>
+        {/* ============================================================= */}
+        {/* LEFT COLUMN: INTERACTIVE 3D SHOWCASE & ADAPTIVE MODALITY LAB */}
+        {/* ============================================================= */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.65rem',
+          padding: '0.5rem',
+        }}>
+          {/* Header Tag */}
+          <div>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'rgba(232, 59, 100, 0.08)',
+              color: 'var(--primary)',
+              padding: '0.4rem 0.9rem',
+              borderRadius: '999px',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              marginBottom: '1rem',
+              border: '1px solid rgba(232, 59, 100, 0.2)',
+            }}>
+              <Sparkles size={15} />
+              <span>Personalized Inclusive Learning Platform</span>
+            </div>
+
+            <h1 style={{
+              fontSize: 'clamp(2rem, 3.5vw, 2.75rem)',
+              fontWeight: 900,
+              color: 'var(--text-main)',
+              lineHeight: 1.15,
+              letterSpacing: '-0.03em',
+              margin: '0 0 0.85rem 0',
+            }}>
+              Every Mind Learns Differently.{' '}
+              <span style={{
+                background: 'linear-gradient(135deg, #E83B64 0%, #3B82F6 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}>
+                We Adapt to Yours.
+              </span>
+            </h1>
+
+            <p style={{
+              fontSize: '1rem',
+              color: 'var(--text-muted)',
+              lineHeight: 1.6,
+              margin: 0,
+            }}>
+              Real-time AI cognitive twin transforming lessons across hands-free voice narration, dyslexic-friendly typography, interactive sign language, and Bayesian knowledge tracing.
+            </p>
+          </div>
+
+          {/* 3D Visual Showcase Image with Floating Interactive Badges */}
+          <div style={{
+            position: 'relative',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            background: 'linear-gradient(135deg, rgba(232, 59, 100, 0.08) 0%, rgba(59, 130, 246, 0.1) 100%)',
+            border: '1px solid rgba(232, 59, 100, 0.18)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.07)',
+            padding: '0.65rem',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+            <img
+              src={authShowcaseImg}
+              alt="AdaptiveLearn AI 3D Cognitive Architecture"
+              style={{
+                width: '100%',
+                maxHeight: '260px',
+                objectFit: 'cover',
+                borderRadius: '18px',
+                filter: 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.12))',
+              }}
+            />
+
+            {/* Floating Badge: Top-Left Engine Status */}
+            <div style={{
+              position: 'absolute',
+              top: '1.25rem',
+              left: '1.25rem',
+              background: 'rgba(255, 255, 255, 0.92)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.7)',
+              padding: '0.4rem 0.75rem',
+              borderRadius: '12px',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              color: '#0F172A',
+            }}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: '#10B981',
+                boxShadow: '0 0 8px #10B981',
+              }} />
+              <span>Real-Time Adaptation Engine</span>
+            </div>
+
+            {/* Floating Badge: Bottom-Right Version */}
+            <div style={{
+              position: 'absolute',
+              bottom: '1.25rem',
+              right: '1.25rem',
+              background: 'rgba(255, 255, 255, 0.92)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.7)',
+              padding: '0.4rem 0.75rem',
+              borderRadius: '12px',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              color: '#E83B64',
+            }}>
+              <Sparkles size={14} />
+              <span>Cognitive Twin v2.4 Active</span>
+            </div>
+          </div>
+
+          {/* Interactive Modality Switcher Pills */}
+          <div>
+            <div style={{
+              fontSize: '0.8rem',
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: 'var(--text-muted)',
+              marginBottom: '0.65rem',
+            }}>
+              ⚡ Live Adaptive Modalities (Click to Preview)
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {MODALITY_SHOWCASE.map((item, idx) => {
+                const Icon = item.icon;
+                const isSelected = activeModality === idx;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveModality(idx);
+                      playChime('click');
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.55rem 0.95rem',
+                      borderRadius: '12px',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: isSelected ? '2px solid var(--primary)' : '1px solid var(--border-color)',
+                      background: isSelected ? 'var(--primary)' : 'var(--bg-surface)',
+                      color: isSelected ? '#FFFFFF' : 'var(--text-main)',
+                      boxShadow: isSelected ? '0 4px 14px rgba(232, 59, 100, 0.3)' : 'none',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <Icon size={16} />
+                    <span>{item.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Active Interactive Feature Card with Hands-On Controls */}
+          <div style={{
+            background: 'var(--bg-surface)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '20px',
+            border: '1px solid var(--border-color)',
+            padding: '1.35rem',
+            boxShadow: '0 12px 32px rgba(0, 0, 0, 0.05)',
+            position: 'relative',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '12px',
+                  background: 'rgba(232, 59, 100, 0.1)',
+                  color: 'var(--primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  {React.createElement(MODALITY_SHOWCASE[activeModality].icon, { size: 22 })}
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                    {MODALITY_SHOWCASE[activeModality].title}
+                  </h3>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)' }}>
+                    {MODALITY_SHOWCASE[activeModality].tag}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {MODALITY_SHOWCASE[activeModality].metrics.map((m, i) => (
+                  <div key={i} style={{ textAlign: 'right', background: 'var(--bg-main)', padding: '0.35rem 0.65rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{m.label}</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>{m.val}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: '0 0 1rem 0' }}>
+              {MODALITY_SHOWCASE[activeModality].description}
+            </p>
+
+            {/* Interactive Live Hands-On Control based on selected modality */}
+            {activeModality === 0 && (
+              <div style={{
+                background: 'var(--bg-main)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '0.85rem',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                    Bayesian Comprehension: {bktMastery}%
+                  </span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10B981' }}>
+                    Elo: {1350 + Math.round(bktMastery * 3.5)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="40"
+                  max="100"
+                  value={bktMastery}
+                  onChange={(e) => setBktMastery(Number(e.target.value))}
+                  style={{ width: '100%', accentColor: 'var(--primary)', cursor: 'pointer', marginBottom: '0.5rem' }}
+                />
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  {bktMastery > 85 ? '🚀 Calibrated: Recommending advanced synthesis challenges' : '💡 Calibrated: Active scaffolding and micro-step explanations enabled'}
+                </div>
+              </div>
+            )}
+
+            {activeModality === 1 && (
+              <div style={{
+                background: 'var(--bg-main)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0.75rem',
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.2rem' }}>
+                    Voice Synthesis Demo
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                    "Photosynthesis converts solar photons into stable chemical bonds..."
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAudioNarrationDemo}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    background: isSpeaking ? '#EF4444' : 'var(--primary)',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '0.55rem 0.85rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(232, 59, 100, 0.25)',
+                  }}
+                >
+                  {isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                  <span>{isSpeaking ? 'Stop' : 'Listen'}</span>
+                </button>
+              </div>
+            )}
+
+            {activeModality === 2 && (
+              <div style={{
+                background: 'var(--bg-main)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '0.85rem',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                    Reading Typography & Ruler
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDyslexicPreview(!dyslexicPreview);
+                      playChime('click');
+                    }}
+                    style={{
+                      background: dyslexicPreview ? 'var(--primary)' : 'var(--bg-surface)',
+                      color: dyslexicPreview ? '#FFF' : 'var(--text-main)',
+                      border: '1px solid var(--border-color)',
+                      padding: '0.25rem 0.65rem',
+                      borderRadius: '8px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {dyslexicPreview ? 'Dyslexic Font: ON' : 'Dyslexic Font: OFF'}
+                  </button>
+                </div>
+                <div style={{
+                  padding: '0.5rem',
+                  borderRadius: '6px',
+                  background: dyslexicPreview ? 'rgba(254, 240, 138, 0.35)' : 'transparent',
+                  fontFamily: dyslexicPreview ? '"OpenDyslexic", "Comic Sans MS", sans-serif' : 'inherit',
+                  letterSpacing: dyslexicPreview ? '0.08em' : 'normal',
+                  wordSpacing: dyslexicPreview ? '0.18em' : 'normal',
+                  fontSize: '0.82rem',
+                  lineHeight: 1.6,
+                  color: 'var(--text-main)',
+                }}>
+                  Visual spotlight reading ruler stabilizes eye focus and prevents mirrored b/d letter transposition.
+                </div>
+              </div>
+            )}
+
+            {activeModality === 3 && (
+              <div style={{
+                background: 'var(--bg-main)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '0.85rem',
+              }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.5rem' }}>
+                  Select Vocabulary for Sign Gestures:
+                </div>
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                  {['Photosynthesis', 'Mitochondria', 'Hypothesis'].map((word) => (
+                    <button
+                      key={word}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSignWord(word);
+                        playChime('click');
+                      }}
+                      style={{
+                        padding: '0.3rem 0.65rem',
+                        borderRadius: '8px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        border: selectedSignWord === word ? '1px solid var(--primary)' : '1px solid var(--border-color)',
+                        background: selectedSignWord === word ? 'rgba(232, 59, 100, 0.12)' : 'var(--bg-surface)',
+                        color: selectedSignWord === word ? 'var(--primary)' : 'var(--text-main)',
+                      }}
+                    >
+                      {word}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                  Gesture loaded for <strong>{selectedSignWord}</strong>: 3D multi-angle video preview & 100% CC captioning ready.
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Social Proof & Trust Badges */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
+              <TrendingUp size={16} style={{ color: '#10B981' }} />
+              <span>94% Concept Retention</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
+              <Award size={16} style={{ color: '#3B82F6' }} />
+              <span>WCAG 2.2 AA Certified</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
+              <ShieldCheck size={16} style={{ color: '#E83B64' }} />
+              <span>Argon2id Encrypted</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ============================================================= */}
+        {/* RIGHT COLUMN: GLASSMORPHIC AUTHENTICATION CARD */}
+        {/* ============================================================= */}
+        <div style={{
+          width: '100%',
+          maxWidth: '460px',
+          margin: '0 auto',
+          background: 'var(--bg-surface)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRadius: '24px',
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
+          padding: '2.5rem 2.25rem',
+          position: 'relative',
+        }}>
         {/* Brand Header */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
@@ -1222,6 +1726,7 @@ export const AuthPage = () => {
           <ShieldCheck size={15} style={{ color: '#10B981' }} />
           <span>Encrypted with Argon2id / bcrypt • Secure HttpOnly Sessions • WCAG 2.2 AA</span>
         </div>
+      </div>
       </div>
     </div>
   );
