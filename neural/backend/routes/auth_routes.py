@@ -684,16 +684,21 @@ def get_current_user_profile(
 # 6. GOOGLE OAUTH 2.0 (GET /google & GET /google/callback)
 # =============================================================================
 @router.get("/google")
-def google_oauth_initiate(mode: Optional[str] = Query(None)):
+def google_oauth_initiate(request: Request, mode: Optional[str] = Query(None)):
+    forwarded_proto = request.headers.get("x-forwarded-proto", "https" if request.url.is_secure else "http")
+    host = request.headers.get("x-forwarded-host", request.headers.get("host", request.url.netloc))
+    base_url = f"{forwarded_proto}://{host}"
+    backend_url = os.getenv("BACKEND_URL", "").strip() or base_url
+
     client_id = os.getenv("GOOGLE_CLIENT_ID", "").strip()
-    redirect_uri = f"{BACKEND_URL}/api/auth/google/callback"
+    redirect_uri = f"{backend_url}/api/auth/google/callback"
     if mode == "demo" or not client_id:
         # Instant zero-friction Google demo single sign-on
         return {
             "success": True,
             "configured": True,
             "demoMode": True,
-            "authUrl": f"{BACKEND_URL}/api/auth/google/demo",
+            "authUrl": f"{backend_url}/api/auth/google/demo",
             "message": "Continuing with Google Single Sign-On.",
         }
 
@@ -761,8 +766,18 @@ def google_oauth_demo(request: Request, db: Session = Depends(get_db)):
     db.add(user_session)
     db.commit()
 
+    target_frontend = os.getenv("FRONTEND_URL", "").strip()
+    if not target_frontend or target_frontend == "*":
+        ref = request.headers.get("referer", "")
+        if ref:
+            from urllib.parse import urlparse
+            p = urlparse(ref)
+            target_frontend = f"{p.scheme}://{p.netloc}"
+        else:
+            target_frontend = FRONTEND_URL or "http://localhost:5173"
+
     log_security_event(db, "OAUTH_LOGIN", user_id=user.id, ip_address=request.client.host if request.client else "127.0.0.1", details={"provider": "google", "mode": "demo"})
-    resp = Response(status_code=302, headers={"Location": f"{FRONTEND_URL}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
+    resp = Response(status_code=302, headers={"Location": f"{target_frontend}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
     set_auth_cookies(resp, jwt_token, raw_refresh)
     return resp
 
@@ -777,7 +792,12 @@ def google_oauth_callback(
         # Automatic graceful fallback to demo Google SSO if OAuth was cancelled or misconfigured
         return google_oauth_demo(request, db)
 
-    redirect_uri = f"{BACKEND_URL}/api/auth/google/callback"
+    forwarded_proto = request.headers.get("x-forwarded-proto", "https" if request.url.is_secure else "http")
+    host = request.headers.get("x-forwarded-host", request.headers.get("host", request.url.netloc))
+    base_url = f"{forwarded_proto}://{host}"
+    backend_url = os.getenv("BACKEND_URL", "").strip() or base_url
+
+    redirect_uri = f"{backend_url}/api/auth/google/callback"
     client_id = os.getenv("GOOGLE_CLIENT_ID", "").strip()
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET", "").strip()
     try:
@@ -858,7 +878,17 @@ def google_oauth_callback(
         db.add(user_session)
         db.commit()
 
-        resp = Response(status_code=302, headers={"Location": f"{FRONTEND_URL}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
+        target_frontend = os.getenv("FRONTEND_URL", "").strip()
+        if not target_frontend or target_frontend == "*":
+            ref = request.headers.get("referer", "")
+            if ref:
+                from urllib.parse import urlparse
+                p = urlparse(ref)
+                target_frontend = f"{p.scheme}://{p.netloc}"
+            else:
+                target_frontend = FRONTEND_URL or "http://localhost:5173"
+
+        resp = Response(status_code=302, headers={"Location": f"{target_frontend}/auth?token={jwt_token}&refresh={raw_refresh}&provider=google"})
         set_auth_cookies(resp, jwt_token, raw_refresh)
         return resp
     except Exception as e:
