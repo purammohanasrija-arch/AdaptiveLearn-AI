@@ -189,6 +189,8 @@ def check_rate_limit(action: str, ip: str, max_requests: int = 10, window_second
 def set_auth_cookies(response: Response, access_token: str, refresh_token: Optional[str] = None, remember_me: bool = False):
     max_age_access = ACCESS_TOKEN_EXPIRE_MINUTES * 60
     max_age_refresh = (REMEMBER_ME_DAYS if remember_me else REFRESH_TOKEN_EXPIRE_DAYS) * 86400
+    is_secure = False if ("localhost" in FRONTEND_URL or "127.0.0.1" in FRONTEND_URL) else True
+    samesite_val = "none" if is_secure else "lax"
 
     response.set_cookie(
         key="access_token",
@@ -196,8 +198,8 @@ def set_auth_cookies(response: Response, access_token: str, refresh_token: Optio
         max_age=max_age_access,
         expires=max_age_access,
         httponly=True,
-        samesite="lax",
-        secure=False if ("localhost" in FRONTEND_URL or "127.0.0.1" in FRONTEND_URL) else True,
+        samesite=samesite_val,
+        secure=is_secure,
         path="/",
     )
     if refresh_token:
@@ -207,14 +209,16 @@ def set_auth_cookies(response: Response, access_token: str, refresh_token: Optio
             max_age=max_age_refresh,
             expires=max_age_refresh,
             httponly=True,
-            samesite="lax",
-            secure=False if ("localhost" in FRONTEND_URL or "127.0.0.1" in FRONTEND_URL) else True,
+            samesite=samesite_val,
+            secure=is_secure,
             path="/",
         )
 
 def clear_auth_cookies(response: Response):
-    response.delete_cookie(key="access_token", path="/")
-    response.delete_cookie(key="refresh_token", path="/")
+    is_secure = False if ("localhost" in FRONTEND_URL or "127.0.0.1" in FRONTEND_URL) else True
+    samesite_val = "none" if is_secure else "lax"
+    response.delete_cookie(key="access_token", path="/", samesite=samesite_val, secure=is_secure)
+    response.delete_cookie(key="refresh_token", path="/", samesite=samesite_val, secure=is_secure)
 
 # =============================================================================
 # DEPENDENCY: CURRENT USER RESOLUTION
