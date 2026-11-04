@@ -1,4 +1,4 @@
-const rawApiBase = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+const rawApiBase = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api';
 export const API_BASE = (() => {
   let url = (rawApiBase || '').trim();
   if (!url) return '/api';
