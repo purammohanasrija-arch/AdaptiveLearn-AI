@@ -377,6 +377,14 @@ def register_user(
     new_id = f"user-{uuid.uuid4().hex[:8]}"
     hashed_pw = hash_password(payload.password)
 
+    # Check if this email was verified via recent registration OTP
+    recent_otp = db.query(OTPVerification).filter(
+        OTPVerification.email == email,
+        OTPVerification.purpose == "registration",
+        OTPVerification.verified_at != None
+    ).order_by(OTPVerification.created_at.desc()).first()
+    is_verified = bool(recent_otp and (datetime.utcnow() - recent_otp.verified_at).total_seconds() < 1800)
+
     user = User(
         id=new_id,
         name=name,
@@ -384,7 +392,7 @@ def register_user(
         password_hash=hashed_pw,
         role=role,
         avatar=payload.avatar or ("👩‍🏫" if role == "teacher" else "🎓"),
-        email_verified=False,
+        email_verified=is_verified,
         failed_login_attempts=0,
     )
     db.add(user)
@@ -1146,6 +1154,15 @@ def verify_email_otp(payload: VerifyOTPRequest, request: Request, response: Resp
     otp_rec.verified_at = datetime.utcnow()
     db.commit()
 
+    # For registration purpose, verify the email and return immediately so the registration form completes account creation
+    if payload.purpose == "registration":
+        return {
+            "success": True,
+            "message": "Email verified successfully!",
+            "verified": True,
+            "email": email,
+        }
+
     user = db.query(User).filter(User.email == email).first()
     if not user:
         # Auto-provision student user & learner profile for passwordless onboarding
@@ -1163,9 +1180,9 @@ def verify_email_otp(payload: VerifyOTPRequest, request: Request, response: Resp
         profile = LearnerProfile(
             user_id=user.id,
             baseline_score=75.0,
-            learning_pace="balanced",
-            preferred_modality="visual",
-            reading_level="grade-10",
+            learning_level="beginner",
+            preferred_format="visual",
+            preferred_language="English",
         )
         db.add(profile)
         db.commit()
