@@ -90,6 +90,8 @@ def send_email(to_email: str, subject: str, html_content: str, text_content: Opt
             msg["Message-ID"] = email.utils.make_msgid(domain=domain)
             msg["MIME-Version"] = "1.0"
             msg["X-Mailer"] = "AdaptiveLearn-AI"
+            msg["X-Priority"] = "1"
+            msg["Importance"] = "high"
 
             # Attach plain text first, then HTML alternative (RFC 2046 standard)
             msg.attach(MIMEText(final_text, "plain", "utf-8"))
@@ -177,7 +179,7 @@ def send_verification_email(to_email: str, user_name: str, verification_url: str
 # 3. OTP Verification
 # -----------------------------------------------------------------------------
 def send_otp_email(to_email: str, user_name: str, otp_code: str, purpose: str = "login") -> bool:
-    subject = f"Your AdaptiveLearn AI Verification Code: {otp_code}"
+    subject = f"{otp_code} is your AdaptiveLearn verification code"
     text_content = (
         f"Hello {user_name},\n\n"
         f"Your 6-digit verification code is: {otp_code}\n\n"

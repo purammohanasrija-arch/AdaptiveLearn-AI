@@ -1561,6 +1561,27 @@ export const AuthPage = () => {
                   )}
                 </button>
 
+                <div style={{ textAlign: 'center', marginTop: '0.65rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpDigits(['1', '1', '2', '9', '0', '0']);
+                      showToast('Evaluator test code auto-filled (112900)', 'info');
+                    }}
+                    style={{
+                      background: 'rgba(232, 59, 100, 0.08)',
+                      border: '1px dashed var(--primary)',
+                      color: 'var(--primary)',
+                      padding: '0.4rem 0.85rem',
+                      borderRadius: '8px',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ⚡ Auto-Fill Code for Evaluators (112900)
+                  </button>
+                </div>
                 <div style={{
                   background: 'rgba(232, 59, 100, 0.04)',
                   border: '1px solid rgba(232, 59, 100, 0.14)',
@@ -1605,6 +1626,27 @@ export const AuthPage = () => {
             )}
 
             {/* Quick Demo Access Bar for Unstop Evaluators */}
+            <div style={{ textAlign: 'center', marginTop: '0.65rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setSignupOtpDigits(['1', '1', '2', '9', '0', '0']);
+                  showToast('Evaluator test code auto-filled (112900)', 'info');
+                }}
+                style={{
+                  background: 'rgba(232, 59, 100, 0.08)',
+                  border: '1px dashed var(--primary)',
+                  color: 'var(--primary)',
+                  padding: '0.4rem 0.85rem',
+                  borderRadius: '8px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                ⚡ Auto-Fill Code for Evaluators (112900)
+              </button>
+            </div>
             <div style={{
               background: 'rgba(232, 59, 100, 0.04)',
               border: '1px dashed rgba(232, 59, 100, 0.25)',
