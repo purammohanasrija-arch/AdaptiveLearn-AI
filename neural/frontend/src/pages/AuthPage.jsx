@@ -1561,6 +1561,20 @@ export const AuthPage = () => {
                   )}
                 </button>
 
+                <div style={{
+                  background: 'rgba(232, 59, 100, 0.04)',
+                  border: '1px solid rgba(232, 59, 100, 0.14)',
+                  borderRadius: '10px',
+                  padding: '0.65rem 0.85rem',
+                  fontSize: '0.78rem',
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.45,
+                  textAlign: 'center',
+                }}>
+                  ⏱️ <strong>Code is valid for 5 minutes.</strong><br />
+                  📬 Can't find it? Check your <strong>Spam / Junk</strong> or <strong>Promotions / Updates</strong> folder.
+                </div>
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', marginTop: '0.25rem' }}>
                   <button
                     type="button"
@@ -1570,20 +1584,20 @@ export const AuthPage = () => {
                       setErrorMessage('');
                       setSuccessMessage('');
                     }}
-                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
                   >
                     Change Email
                   </button>
 
                   {otpCountdown > 0 ? (
-                    <span style={{ color: 'var(--text-muted)' }}>Resend in {otpCountdown}s</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Resend button active in {otpCountdown}s</span>
                   ) : (
                     <button
                       type="button"
                       onClick={handleSendOtp}
                       style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', padding: 0 }}
                     >
-                      Resend Code
+                      Resend New Code
                     </button>
                   )}
                 </div>
@@ -2052,6 +2066,20 @@ export const AuthPage = () => {
               )}
             </button>
 
+            <div style={{
+              background: 'rgba(232, 59, 100, 0.04)',
+              border: '1px solid rgba(232, 59, 100, 0.14)',
+              borderRadius: '10px',
+              padding: '0.65rem 0.85rem',
+              fontSize: '0.78rem',
+              color: 'var(--text-muted)',
+              lineHeight: 1.45,
+              textAlign: 'center',
+            }}>
+              ⏱️ <strong>Code is valid for 5 minutes.</strong><br />
+              📬 Can't find it? Check your <strong>Spam / Junk</strong> or <strong>Promotions / Updates</strong> folder.
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', marginTop: '0.25rem' }}>
               <button
                 type="button"
@@ -2061,20 +2089,20 @@ export const AuthPage = () => {
                   setErrorMessage('');
                   setSuccessMessage('');
                 }}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
               >
                 ← Edit Information
               </button>
 
               {signupOtpCountdown > 0 ? (
-                <span style={{ color: 'var(--text-muted)' }}>Resend in {signupOtpCountdown}s</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Resend button active in {signupOtpCountdown}s</span>
               ) : (
                 <button
                   type="button"
                   onClick={handleRegisterSubmit}
                   style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', padding: 0 }}
                 >
-                  Resend Code
+                  Resend New Code
                 </button>
               )}
             </div>
