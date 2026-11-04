@@ -88,6 +88,47 @@ export const AuthPage = () => {
   const { login, loginWithOTP, register, switchDemoUser } = useAuth();
   const { playChime, speakText, stopSpeech, isSpeaking } = useAccessibility();
 
+  // Signup OTP Verification States
+  const [signupStep, setSignupStep] = useState('details'); // 'details' | 'verify_otp'
+  const [signupOtpDigits, setSignupOtpDigits] = useState(['', '', '', '', '', '']);
+  const [signupOtpCountdown, setSignupOtpCountdown] = useState(0);
+
+  // Signup OTP countdown timer
+  useEffect(() => {
+    if (signupOtpCountdown <= 0) return;
+    const t = setInterval(() => setSignupOtpCountdown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [signupOtpCountdown]);
+
+  // Handle Digit input for Signup OTP
+  const handleSignupDigitChange = (index, value) => {
+    if (value.length > 1) {
+      const pasted = value.replace(/[^0-9]/g, '').slice(0, 6);
+      if (pasted.length === 6) {
+        setSignupOtpDigits(pasted.split(''));
+        const lastInput = document.getElementById('signup-otp-input-5');
+        if (lastInput) lastInput.focus();
+        return;
+      }
+    }
+    const cleanVal = value.replace(/[^0-9]/g, '');
+    const updated = [...signupOtpDigits];
+    updated[index] = cleanVal.slice(-1);
+    setSignupOtpDigits(updated);
+
+    if (cleanVal && index < 5) {
+      const nextInput = document.getElementById(`signup-otp-input-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
+  const handleSignupDigitKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !signupOtpDigits[index] && index > 0) {
+      const prevInput = document.getElementById(`signup-otp-input-${index - 1}`);
+      if (prevInput) prevInput.focus();
+    }
+  };
+
   // Email OTP States
   const [otpEmail, setOtpEmail] = useState('');
   const [otpStep, setOtpStep] = useState('request'); // 'request' | 'verify'
@@ -332,7 +373,7 @@ export const AuthPage = () => {
     }
   };
 
-  // 2. Handle Registration
+  // 2. Handle Registration Step 1: Validate & Send Verification Code
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -343,7 +384,7 @@ export const AuthPage = () => {
       return;
     }
 
-    if (!email.trim()) {
+    if (!email.trim() || !email.includes('@')) {
       setErrorMessage('Please enter a valid email address.');
       return;
     }
@@ -358,7 +399,7 @@ export const AuthPage = () => {
       return;
     }
 
-    if (strength.passedCount < 5) {
+    if (strength.passedCount < 4) {
       setErrorMessage('Please meet all password complexity requirements shown below.');
       return;
     }
@@ -367,6 +408,41 @@ export const AuthPage = () => {
     playChime('click');
 
     try {
+      // Dispatch 6-digit OTP to user's real email before account creation
+      const res = await api.authSendOTP(email.trim(), 'registration');
+      setSignupStep('verify_otp');
+      setSignupOtpCountdown(60);
+      setSuccessMessage(res.message || `A 6-digit verification code has been dispatched to ${email.trim()}. Enter it below to activate your account.`);
+      playChime('chime');
+      showToast('Verification code sent to your email!', 'success');
+    } catch (err) {
+      setErrorMessage(err.message || 'Unable to send verification code. Please check your email.');
+      playChime('alert');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 2b. Handle Registration Step 2: Verify OTP & Create Account
+  const handleVerifySignupOtpAndCreate = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    const fullCode = signupOtpDigits.join('');
+    if (fullCode.length !== 6) {
+      setErrorMessage('Please enter the complete 6-digit verification code from your email.');
+      return;
+    }
+
+    setLoading(true);
+    playChime('click');
+
+    try {
+      // 1. Verify the cryptographic OTP code
+      await api.authVerifyOTP(email.trim(), fullCode, 'registration');
+
+      // 2. Create the verified user account
       const createdUser = await register({
         name: name.trim(),
         email: email.trim(),
@@ -380,7 +456,7 @@ export const AuthPage = () => {
       showToast(`Welcome to AdaptiveLearn AI, ${createdUser.name}!`, 'success');
       handleDestination(createdUser);
     } catch (err) {
-      setErrorMessage(err.message || 'Registration failed. Please check your information.');
+      setErrorMessage(err.message || 'Verification failed. Please check the code and try again.');
       playChime('alert');
     } finally {
       setLoading(false);
@@ -1568,6 +1644,7 @@ export const AuthPage = () => {
         {/* VIEW 2: REGISTER */}
         {/* ================================================================= */}
         {activeTab === 'register' && (
+          signupStep === 'details' ? (
           <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
             {/* Full Name */}
             <div>
@@ -1818,7 +1895,7 @@ export const AuthPage = () => {
               </label>
             </div>
 
-            {/* Submit Register Button */}
+            {/* Send OTP & Register Button */}
             <button
               type="submit"
               disabled={loading}
@@ -1840,17 +1917,169 @@ export const AuthPage = () => {
               {loading ? (
                 <>
                   <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                  <span>Creating Secure Account...</span>
+                  <span>Sending Verification Code...</span>
                 </>
               ) : (
                 <>
-                  <ShieldCheck size={18} />
-                  <span>Create Account</span>
+                  <span>Send OTP & Verify Email</span>
+                  <ArrowRight size={18} />
                 </>
               )}
             </button>
+
+            {/* Social Divider */}
+            <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0' }}>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
+              <span style={{ padding: '0 0.85rem', fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Or Sign Up With
+              </span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
+            </div>
+
+            {/* Google Signup Button */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '12px',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-main)',
+                color: 'var(--text-main)',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.65rem',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18">
+                <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z" />
+                <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.908-2.259c-.806.54-1.837.86-3.052.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" />
+                <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" />
+                <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" />
+              </svg>
+              <span>Sign Up with Google</span>
+            </button>
           </form>
-        )}
+        ) : (
+          <form onSubmit={handleVerifySignupOtpAndCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '44px',
+                height: '44px',
+                borderRadius: '12px',
+                background: 'rgba(232, 59, 100, 0.1)',
+                color: 'var(--primary)',
+                marginBottom: '0.75rem',
+              }}>
+                <Mail size={22} />
+              </div>
+              <h3 style={{ margin: '0 0 0.35rem', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                Verify Your Email
+              </h3>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
+                Enter the 6-digit code dispatched to <strong>{email}</strong> to activate your account:
+              </p>
+
+              {/* 6 Digit Input Boxes */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', margin: '1.25rem 0' }}>
+                {signupOtpDigits.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    id={`signup-otp-input-${idx}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={digit}
+                    onChange={(e) => handleSignupDigitChange(idx, e.target.value)}
+                    onKeyDown={(e) => handleSignupDigitKeyDown(idx, e)}
+                    style={{
+                      width: '46px',
+                      height: '52px',
+                      textAlign: 'center',
+                      fontSize: '1.4rem',
+                      fontWeight: 800,
+                      borderRadius: '12px',
+                      border: digit ? '2px solid var(--primary)' : '1px solid var(--border-color)',
+                      background: 'var(--bg-main)',
+                      color: 'var(--text-main)',
+                      outline: 'none',
+                      boxShadow: digit ? '0 2px 8px rgba(232, 59, 100, 0.15)' : 'none',
+                      transition: 'all 0.15s ease',
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || signupOtpDigits.join('').length !== 6}
+              className="btn btn-primary"
+              style={{
+                width: '100%',
+                padding: '0.9rem',
+                borderRadius: '12px',
+                fontWeight: 800,
+                fontSize: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 6px 18px rgba(232, 59, 100, 0.28)',
+                cursor: (loading || signupOtpDigits.join('').length !== 6) ? 'not-allowed' : 'pointer',
+                opacity: signupOtpDigits.join('').length === 6 ? 1 : 0.65,
+              }}
+            >
+              {loading ? (
+                <>
+                  <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                  <span>Verifying & Creating Account...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 size={18} />
+                  <span>Verify Code & Complete Signup</span>
+                </>
+              )}
+            </button>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setSignupStep('details');
+                  setSignupOtpDigits(['', '', '', '', '', '']);
+                  setErrorMessage('');
+                  setSuccessMessage('');
+                }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+              >
+                ← Edit Information
+              </button>
+
+              {signupOtpCountdown > 0 ? (
+                <span style={{ color: 'var(--text-muted)' }}>Resend in {signupOtpCountdown}s</span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleRegisterSubmit}
+                  style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                >
+                  Resend Code
+                </button>
+              )}
+            </div>
+          </form>
+        ))}
 
         {/* ================================================================= */}
         {/* VIEW 3: FORGOT PASSWORD */}
